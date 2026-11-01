@@ -1,13 +1,21 @@
 // Petits outils HTTP communs aux routes de l'API.
 
-export const json = (data: unknown, status = 200, headers: HeadersInit = {}) => {
+export const json = (
+  data: unknown,
+  status = 200,
+  headers: HeadersInit = {},
+) => {
   const h = new Headers(headers);
   h.set("cache-control", "no-store");
   return Response.json(data, { status, headers: h });
 };
 
-export const erreur = (code: string, status: number, extra: Record<string, unknown> = {}, headers: HeadersInit = {}) =>
-  json({ error: code, ...extra }, status, headers);
+export const erreur = (
+  code: string,
+  status: number,
+  extra: Record<string, unknown> = {},
+  headers: HeadersInit = {},
+) => json({ error: code, ...extra }, status, headers);
 
 export class HttpError extends Error {
   constructor(
@@ -19,8 +27,15 @@ export class HttpError extends Error {
 }
 
 /** Lit un corps JSON objet ; refuse tout autre type de contenu (protège aussi contre le CSRF). */
-export async function lireJson(request: Request): Promise<Record<string, unknown>> {
-  if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
+export async function lireJson(
+  request: Request,
+): Promise<Record<string, unknown>> {
+  if (
+    !request.headers
+      .get("content-type")
+      ?.toLowerCase()
+      .startsWith("application/json")
+  ) {
     throw new HttpError(415, "json_attendu");
   }
   let body: unknown;
@@ -57,7 +72,8 @@ export function lireCookie(request: Request, nom: string): string | null {
   if (!header) return null;
   for (const part of header.split(";")) {
     const i = part.indexOf("=");
-    if (i > 0 && part.slice(0, i).trim() === nom) return part.slice(i + 1).trim();
+    if (i > 0 && part.slice(0, i).trim() === nom)
+      return part.slice(i + 1).trim();
   }
   return null;
 }

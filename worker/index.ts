@@ -6,14 +6,18 @@ import type { Env } from "./env";
 
 export type { Env };
 
-function mailerDe(env: Env): Mailer {
-  if (!env.MAKISEND_URL || !env.MAKISEND_API_KEY) return new ConsoleMailer();
+function mailerDe(env: Env, url: URL): Mailer {
+  if (!env.MAKISEND_URL || !env.MAKISEND_API_KEY) {
+    const local = url.hostname === "localhost" || url.hostname === "127.0.0.1";
+    return new ConsoleMailer(!local);
+  }
   return new MakiSendMailer({
     url: env.MAKISEND_URL.replace(/\/+$/, ""),
     apiKey: env.MAKISEND_API_KEY,
     templates: {
       verification: env.MAKISEND_TEMPLATE_VERIFICATION ?? "verification",
-      reinitialisation: env.MAKISEND_TEMPLATE_REINITIALISATION ?? "reinitialisation",
+      reinitialisation:
+        env.MAKISEND_TEMPLATE_REINITIALISATION ?? "reinitialisation",
       code_change: env.MAKISEND_TEMPLATE_CODE_CHANGE ?? "code-change",
     },
   });
@@ -25,7 +29,7 @@ export default {
     if (url.pathname.startsWith("/api/")) {
       return handleApi(request, {
         db: env.DB,
-        mailer: mailerDe(env),
+        mailer: mailerDe(env, url),
         now: Date.now,
         appUrl: (env.APP_URL ?? url.origin).replace(/\/+$/, ""),
         waitUntil: (p) => ctx.waitUntil(p),

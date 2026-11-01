@@ -7,9 +7,21 @@ import {
   verifierCode,
 } from "../../shared/validation";
 import type { Mailer, ModeleEmail } from "../email/mailer";
-import { burnCodeCheck, hashCode, randomToken, sha256Hex, verifyCode } from "../lib/crypto";
+import {
+  burnCodeCheck,
+  hashCode,
+  randomToken,
+  sha256Hex,
+  verifyCode,
+} from "../lib/crypto";
 import { erreur, HttpError, ipDe, json, lireJson, texte } from "../lib/http";
-import { bloquer, dureeBlocage, MAX_ESSAIS, remiseAZero, reserverTentative } from "../lib/lockout";
+import {
+  bloquer,
+  dureeBlocage,
+  MAX_ESSAIS,
+  remiseAZero,
+  reserverTentative,
+} from "../lib/lockout";
 import { consommer, LIMITES } from "../lib/rateLimit";
 import {
   appareilConnu,
@@ -52,8 +64,13 @@ function codeDuCorps(body: Record<string, unknown>): string {
   return code;
 }
 
-async function limiter(deps: Deps, key: string, limite: (typeof LIMITES)[keyof typeof LIMITES]) {
-  if (!(await consommer(deps.db, key, limite, deps.now()))) throw new HttpError(429, "trop_de_tentatives");
+async function limiter(
+  deps: Deps,
+  key: string,
+  limite: (typeof LIMITES)[keyof typeof LIMITES],
+) {
+  if (!(await consommer(deps.db, key, limite, deps.now())))
+    throw new HttpError(429, "trop_de_tentatives");
 }
 
 /** Crée un jeton à usage unique (lien par email) et renvoie le jeton en clair. */
@@ -67,7 +84,9 @@ async function creerJeton(
   const hash = await sha256Hex(jeton);
   const now = deps.now();
   await deps.db
-    .prepare(`INSERT INTO ${table} (token_hash, user_id, expires_at, created_at) VALUES (?1, ?2, ?3, ?4)`)
+    .prepare(
+      `INSERT INTO ${table} (token_hash, user_id, expires_at, created_at) VALUES (?1, ?2, ?3, ?4)`,
+    )
     .bind(hash, userId, now + dureeMs, now)
     .run();
   return { jeton, hash };
@@ -91,26 +110,50 @@ async function consommerJeton(
   return row?.user_id ?? null;
 }
 
-function envoyer(deps: Deps, to: string, modele: ModeleEmail, variables: Record<string, string>, key: string) {
+function envoyer(
+  deps: Deps,
+  to: string,
+  modele: ModeleEmail,
+  variables: Record<string, string>,
+  key: string,
+) {
   deps.waitUntil(
-    deps.mailer.send({ to, modele, variables, idempotencyKey: key }).catch((e) => {
-      console.error(`Échec d'envoi de l'email ${modele}`, e);
-    }),
+    deps.mailer
+      .send({ to, modele, variables, idempotencyKey: key })
+      .catch((e) => {
+        console.error(`Échec d'envoi de l'email ${modele}`, e);
+      }),
   );
 }
 
-async function envoyerVerification(deps: Deps, user: { id: string; email: string; prenom: string }) {
-  const { jeton, hash } = await creerJeton(deps, "email_verifications", user.id, DUREE_LIEN_VERIFICATION);
+async function envoyerVerification(
+  deps: Deps,
+  user: { id: string; email: string; prenom: string },
+) {
+  const { jeton, hash } = await creerJeton(
+    deps,
+    "email_verifications",
+    user.id,
+    DUREE_LIEN_VERIFICATION,
+  );
   envoyer(
     deps,
     user.email,
     "verification",
-    { prenom: user.prenom, lien: `${deps.appUrl}/email-verifie?jeton=${jeton}` },
+    {
+      prenom: user.prenom,
+      lien: `${deps.appUrl}/email-verifie?jeton=${jeton}`,
+    },
     `verification:${hash}`,
   );
 }
 
-async function connecter(deps: Deps, request: Request, user: UtilisatriceRow, status = 200): Promise<Response> {
+async function connecter(
+  deps: Deps,
+  request: Request,
+  user: UtilisatriceRow,
+  status = 200,
+): Promise<Response> {
   const jeton = await creerSession(deps.db, user.id, deps.now());
   const headers = new Headers();
   headers.append("set-cookie", cookieSession(request, jeton));
@@ -118,13 +161,21 @@ async function connecter(deps: Deps, request: Request, user: UtilisatriceRow, st
   return json({ utilisatrice: versClient(user) }, status, headers);
 }
 
-const SELECT_USER = "SELECT id, email, prenom, trial_used, email_verified_at FROM users";
+const SELECT_USER =
+  "SELECT id, email, prenom, trial_used, email_verified_at FROM users";
 
 // POST /api/auth/email-disponible — écran Connexion, avant de choisir le code.
 async function emailDisponible({ request, deps }: Ctx) {
-  await limiter(deps, `email-disponible:ip:${ipDe(request)}`, LIMITES.emailDisponibleIp);
+  await limiter(
+    deps,
+    `email-disponible:ip:${ipDe(request)}`,
+    LIMITES.emailDisponibleIp,
+  );
   const email = emailDuCorps(await lireJson(request));
-  const row = await deps.db.prepare("SELECT 1 FROM users WHERE email = ?1").bind(email).first();
+  const row = await deps.db
+    .prepare("SELECT 1 FROM users WHERE email = ?1")
+    .bind(email)
+    .first();
   return json({ disponible: row === null });
 }
 
@@ -136,7 +187,8 @@ async function inscription({ request, deps }: Ctx) {
   if (!prenomValide(prenom)) throw new HttpError(400, "prenom_invalide");
   const email = emailDuCorps(body);
   const code = codeDuCorps(body);
-  if (body.consentement !== true) throw new HttpError(400, "consentement_requis");
+  if (body.consentement !== true)
+    throw new HttpError(400, "consentement_requis");
 
   const now = deps.now();
   const id = crypto.randomUUID();
@@ -151,7 +203,13 @@ async function inscription({ request, deps }: Ctx) {
     .run();
   if (insert.meta.changes === 0) return erreur("email_existant", 409);
 
-  const user: UtilisatriceRow = { id, email, prenom, trial_used: 0, email_verified_at: null };
+  const user: UtilisatriceRow = {
+    id,
+    email,
+    prenom,
+    trial_used: 0,
+    email_verified_at: null,
+  };
   await envoyerVerification(deps, user);
   return connecter(deps, request, user, 201);
 }
@@ -171,7 +229,14 @@ async function connexion({ request, deps }: Ctx) {
        FROM users WHERE email = ?1`,
     )
     .bind(email)
-    .first<UtilisatriceRow & { code_hash: string; code_salt: string; code_iterations: number; locked_until: number | null }>();
+    .first<
+      UtilisatriceRow & {
+        code_hash: string;
+        code_salt: string;
+        code_iterations: number;
+        locked_until: number | null;
+      }
+    >();
 
   if (!user) {
     await burnCodeCheck(code);
@@ -180,10 +245,17 @@ async function connexion({ request, deps }: Ctx) {
 
   const tentative = await reserverTentative(deps.db, user.id, now);
   if (!tentative) {
-    return erreur("bloquee", 423, { jusqua: user.locked_until && user.locked_until > now ? user.locked_until : null });
+    return erreur("bloquee", 423, {
+      jusqua:
+        user.locked_until && user.locked_until > now ? user.locked_until : null,
+    });
   }
 
-  const ok = await verifyCode(code, { hash: user.code_hash, salt: user.code_salt, iterations: user.code_iterations });
+  const ok = await verifyCode(code, {
+    hash: user.code_hash,
+    salt: user.code_salt,
+    iterations: user.code_iterations,
+  });
   if (ok) {
     await remiseAZero(deps.db, user.id).run();
     return connecter(deps, request, user);
@@ -202,14 +274,22 @@ async function connexion({ request, deps }: Ctx) {
 // POST /api/auth/deconnexion
 async function deconnexion({ request, deps }: Ctx) {
   await supprimerSession(deps.db, request);
-  return new Response(null, { status: 204, headers: { "set-cookie": cookieSessionEfface(request) } });
+  return new Response(null, {
+    status: 204,
+    headers: { "set-cookie": cookieSessionEfface(request) },
+  });
 }
 
 // GET /api/auth/session
 async function session({ request, deps }: Ctx) {
   const s = await sessionCourante(deps.db, request, deps.now());
-  if (!s) return erreur("non_connectee", 401, { appareilConnu: appareilConnu(request) });
-  const headers: HeadersInit = s.prolongee ? { "set-cookie": cookieSession(request, s.jeton) } : {};
+  if (!s)
+    return erreur("non_connectee", 401, {
+      appareilConnu: appareilConnu(request),
+    });
+  const headers: HeadersInit = s.prolongee
+    ? { "set-cookie": cookieSession(request, s.jeton) }
+    : {};
   return json({ utilisatrice: versClient(s.user) }, 200, headers);
 }
 
@@ -221,18 +301,34 @@ async function codeOublie({ request, deps }: Ctx) {
   deps.waitUntil(
     (async () => {
       // Limite par email silencieuse : la dépasser ne change pas la réponse.
-      if (!(await consommer(deps.db, `code-oublie:email:${email}`, LIMITES.codeOublieEmail, deps.now()))) return;
+      if (
+        !(await consommer(
+          deps.db,
+          `code-oublie:email:${email}`,
+          LIMITES.codeOublieEmail,
+          deps.now(),
+        ))
+      )
+        return;
       const user = await deps.db
         .prepare("SELECT id, email, prenom FROM users WHERE email = ?1")
         .bind(email)
         .first<{ id: string; email: string; prenom: string }>();
       if (!user) return;
-      const { jeton, hash } = await creerJeton(deps, "reset_tokens", user.id, DUREE_LIEN_REINITIALISATION);
+      const { jeton, hash } = await creerJeton(
+        deps,
+        "reset_tokens",
+        user.id,
+        DUREE_LIEN_REINITIALISATION,
+      );
       envoyer(
         deps,
         user.email,
         "reinitialisation",
-        { prenom: user.prenom, lien: `${deps.appUrl}/code-nouveau?jeton=${jeton}` },
+        {
+          prenom: user.prenom,
+          lien: `${deps.appUrl}/code-nouveau?jeton=${jeton}`,
+        },
         `reinitialisation:${hash}`,
       );
     })().catch((e) => console.error("Échec de code-oublie", e)),
@@ -260,21 +356,40 @@ async function nouveauCode({ request, deps }: Ctx) {
     remiseAZero(deps.db, userId),
     // Le code a changé : on ferme toutes les sessions et on annule les autres liens.
     deps.db.prepare("DELETE FROM sessions WHERE user_id = ?1").bind(userId),
-    deps.db.prepare("UPDATE reset_tokens SET used_at = ?2 WHERE user_id = ?1 AND used_at IS NULL").bind(userId, now),
+    deps.db
+      .prepare(
+        "UPDATE reset_tokens SET used_at = ?2 WHERE user_id = ?1 AND used_at IS NULL",
+      )
+      .bind(userId, now),
   ]);
-  const user = await deps.db.prepare(`${SELECT_USER} WHERE id = ?1`).bind(userId).first<UtilisatriceRow>();
+  const user = await deps.db
+    .prepare(`${SELECT_USER} WHERE id = ?1`)
+    .bind(userId)
+    .first<UtilisatriceRow>();
   if (!user) return erreur("lien_invalide", 400);
-  envoyer(deps, user.email, "code_change", { prenom: user.prenom }, `code_change:${userId}:${now}`);
+  envoyer(
+    deps,
+    user.email,
+    "code_change",
+    { prenom: user.prenom },
+    `code_change:${userId}:${now}`,
+  );
   return connecter(deps, request, user);
 }
 
 // POST /api/auth/verifier-email — depuis le lien reçu après l'inscription.
 async function verifierEmail({ request, deps }: Ctx) {
   const body = await lireJson(request);
-  const userId = await consommerJeton(deps, "email_verifications", texte(body.jeton));
+  const userId = await consommerJeton(
+    deps,
+    "email_verifications",
+    texte(body.jeton),
+  );
   if (!userId) return erreur("lien_invalide", 400);
   await deps.db
-    .prepare("UPDATE users SET email_verified_at = COALESCE(email_verified_at, ?2) WHERE id = ?1")
+    .prepare(
+      "UPDATE users SET email_verified_at = COALESCE(email_verified_at, ?2) WHERE id = ?1",
+    )
     .bind(userId, deps.now())
     .run();
   return json({ ok: true });
@@ -285,14 +400,21 @@ async function renvoyerVerification({ request, deps }: Ctx) {
   const s = await sessionCourante(deps.db, request, deps.now());
   if (!s) return erreur("non_connectee", 401);
   if (s.user.email_verified_at !== null) return json({ dejaVerifie: true });
-  await limiter(deps, `verification:user:${s.user.id}`, LIMITES.verificationEmail);
+  await limiter(
+    deps,
+    `verification:user:${s.user.id}`,
+    LIMITES.verificationEmail,
+  );
   await envoyerVerification(deps, s.user);
   return json({ ok: true }, 202);
 }
 
 type Handler = (ctx: Ctx) => Promise<Response>;
 
-export const AUTH_ROUTES: Record<string, Partial<Record<"GET" | "POST", Handler>>> = {
+export const AUTH_ROUTES: Record<
+  string,
+  Partial<Record<"GET" | "POST", Handler>>
+> = {
   "/api/auth/email-disponible": { POST: emailDisponible },
   "/api/auth/inscription": { POST: inscription },
   "/api/auth/connexion": { POST: connexion },

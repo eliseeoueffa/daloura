@@ -5,7 +5,10 @@ import { erreur, HttpError, json, origineAutorisee } from "./lib/http";
 
 export type { Deps };
 
-export async function handleApi(request: Request, deps: Deps): Promise<Response> {
+export async function handleApi(
+  request: Request,
+  deps: Deps,
+): Promise<Response> {
   const { pathname } = new URL(request.url);
 
   if (pathname === "/api/health") {
@@ -15,8 +18,15 @@ export async function handleApi(request: Request, deps: Deps): Promise<Response>
   const route = AUTH_ROUTES[pathname];
   if (!route) return erreur("not_found", 404);
   const handler = route[request.method as "GET" | "POST"];
-  if (!handler) return erreur("methode_non_autorisee", 405, {}, { allow: Object.keys(route).join(", ") });
-  if (request.method !== "GET" && !origineAutorisee(request)) return erreur("origine_refusee", 403);
+  if (!handler)
+    return erreur(
+      "methode_non_autorisee",
+      405,
+      {},
+      { allow: Object.keys(route).join(", ") },
+    );
+  if (request.method !== "GET" && !origineAutorisee(request))
+    return erreur("origine_refusee", 403);
 
   try {
     return await handler({ request, deps });

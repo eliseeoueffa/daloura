@@ -58,3 +58,30 @@ describe("MakiSendMailer", () => {
     ).rejects.toThrow("401");
   });
 });
+
+describe("ConsoleMailer", () => {
+  it("masque les liens hors de localhost", async () => {
+    const { ConsoleMailer } = await import("../../worker/email/mailer");
+    const logs: unknown[][] = [];
+    const orig = console.log;
+    console.log = (...a: unknown[]) => void logs.push(a);
+    try {
+      await new ConsoleMailer(true).send({
+        to: "a@b.co",
+        modele: "reinitialisation",
+        variables: { prenom: "Awa", lien: "https://x/?jeton=secret" },
+        idempotencyKey: "k",
+      });
+      await new ConsoleMailer(false).send({
+        to: "a@b.co",
+        modele: "reinitialisation",
+        variables: { lien: "http://localhost/?jeton=dev" },
+        idempotencyKey: "k",
+      });
+    } finally {
+      console.log = orig;
+    }
+    expect(JSON.stringify(logs[0])).not.toContain("secret");
+    expect(JSON.stringify(logs[1])).toContain("dev");
+  });
+});

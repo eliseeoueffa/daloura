@@ -16,8 +16,18 @@ export interface Mailer {
 }
 
 export class ConsoleMailer implements Mailer {
+  /**
+   * @param masquerLiens true hors de localhost : les liens (jetons de connexion) ne doivent pas
+   * finir dans les journaux Cloudflare si MakiSend n'est pas encore configuré en ligne.
+   */
+  constructor(private readonly masquerLiens = true) {}
+
   async send(email: Email): Promise<void> {
-    console.log(`[email ${email.modele}] à ${email.to}`, email.variables);
+    const variables =
+      this.masquerLiens && email.variables.lien
+        ? { ...email.variables, lien: "[masqué]" }
+        : email.variables;
+    console.log(`[email ${email.modele}] à ${email.to}`, variables);
   }
 }
 

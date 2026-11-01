@@ -13,7 +13,12 @@ function nomCookie(request: Request, base: string): string {
   return new URL(request.url).protocol === "https:" ? `__Host-${base}` : base;
 }
 
-function cookie(request: Request, base: string, valeur: string, maxAgeS: number): string {
+function cookie(
+  request: Request,
+  base: string,
+  valeur: string,
+  maxAgeS: number,
+): string {
   const secure = new URL(request.url).protocol === "https:" ? "; Secure" : "";
   return `${nomCookie(request, base)}=${valeur}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAgeS}${secure}`;
 }
@@ -21,18 +26,27 @@ function cookie(request: Request, base: string, valeur: string, maxAgeS: number)
 export const cookieSession = (request: Request, jeton: string) =>
   cookie(request, "daloura_session", jeton, SESSION_DUREE / 1000);
 
-export const cookieSessionEfface = (request: Request) => cookie(request, "daloura_session", "", 0);
+export const cookieSessionEfface = (request: Request) =>
+  cookie(request, "daloura_session", "", 0);
 
 // Marqueur « un compte a déjà été créé ou ouvert sur ce téléphone » : sert à afficher
 // l'écran EssaiDejaUtilise. Il complète le marqueur gardé par l'appli dans le navigateur.
-export const cookieAppareil = (request: Request) => cookie(request, "daloura_appareil", "1", 5 * 365 * 86_400);
+export const cookieAppareil = (request: Request) =>
+  cookie(request, "daloura_appareil", "1", 5 * 365 * 86_400);
 
-export const appareilConnu = (request: Request) => lireCookie(request, nomCookie(request, "daloura_appareil")) === "1";
+export const appareilConnu = (request: Request) =>
+  lireCookie(request, nomCookie(request, "daloura_appareil")) === "1";
 
-export async function creerSession(db: D1Database, userId: string, now: number): Promise<string> {
+export async function creerSession(
+  db: D1Database,
+  userId: string,
+  now: number,
+): Promise<string> {
   const jeton = randomToken();
   await db
-    .prepare("INSERT INTO sessions (id, user_id, created_at, last_seen_at, expires_at) VALUES (?1, ?2, ?3, ?3, ?4)")
+    .prepare(
+      "INSERT INTO sessions (id, user_id, created_at, last_seen_at, expires_at) VALUES (?1, ?2, ?3, ?3, ?4)",
+    )
     .bind(await sha256Hex(jeton), userId, now, now + SESSION_DUREE)
     .run();
   return jeton;
@@ -50,7 +64,11 @@ export async function sessionCourante(
   db: D1Database,
   request: Request,
   now: number,
-): Promise<{ user: UtilisatriceRow; jeton: string; prolongee: boolean } | null> {
+): Promise<{
+  user: UtilisatriceRow;
+  jeton: string;
+  prolongee: boolean;
+} | null> {
   const jeton = lireCookie(request, nomCookie(request, "daloura_session"));
   if (!jeton) return null;
   const id = await sha256Hex(jeton);
@@ -66,7 +84,9 @@ export async function sessionCourante(
   const prolongee = now - row.last_seen_at > PROLONGER_APRES;
   if (prolongee) {
     await db
-      .prepare("UPDATE sessions SET last_seen_at = ?2, expires_at = ?3 WHERE id = ?1")
+      .prepare(
+        "UPDATE sessions SET last_seen_at = ?2, expires_at = ?3 WHERE id = ?1",
+      )
       .bind(id, now, now + SESSION_DUREE)
       .run();
   }
@@ -74,9 +94,16 @@ export async function sessionCourante(
   return { user, jeton, prolongee };
 }
 
-export async function supprimerSession(db: D1Database, request: Request): Promise<void> {
+export async function supprimerSession(
+  db: D1Database,
+  request: Request,
+): Promise<void> {
   const jeton = lireCookie(request, nomCookie(request, "daloura_session"));
-  if (jeton) await db.prepare("DELETE FROM sessions WHERE id = ?1").bind(await sha256Hex(jeton)).run();
+  if (jeton)
+    await db
+      .prepare("DELETE FROM sessions WHERE id = ?1")
+      .bind(await sha256Hex(jeton))
+      .run();
 }
 
 /** Ce que l'appli reçoit : jamais d'identifiant interne ni de hash. */

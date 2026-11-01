@@ -34,7 +34,12 @@ export async function reserverTentative(
 }
 
 /** Bloque le compte après la 5e erreur. Renvoie la fin du blocage. */
-export async function bloquer(db: D1Database, userId: string, lockCount: number, now: number): Promise<number> {
+export async function bloquer(
+  db: D1Database,
+  userId: string,
+  lockCount: number,
+  now: number,
+): Promise<number> {
   const jusqua = now + dureeBlocage(lockCount + 1);
   await db
     .prepare(
@@ -47,8 +52,13 @@ export async function bloquer(db: D1Database, userId: string, lockCount: number,
 }
 
 /** Connexion réussie ou nouveau code : on efface erreurs et blocages. */
-export function remiseAZero(db: D1Database, userId: string): D1PreparedStatement {
+export function remiseAZero(
+  db: D1Database,
+  userId: string,
+): D1PreparedStatement {
   return db
-    .prepare("UPDATE users SET failed_attempts = 0, lock_count = 0, locked_until = NULL WHERE id = ?1")
+    .prepare(
+      "UPDATE users SET failed_attempts = 0, lock_count = 0, locked_until = NULL WHERE id = ?1",
+    )
     .bind(userId);
 }

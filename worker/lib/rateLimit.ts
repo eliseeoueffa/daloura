@@ -19,7 +19,12 @@ export const LIMITES = {
  * Compte une tentative pour `key`. Renvoie false si la limite est dépassée.
  * Une seule requête SQL : l'insertion ou la mise à jour est atomique.
  */
-export async function consommer(db: D1Database, key: string, limite: Limite, now: number): Promise<boolean> {
+export async function consommer(
+  db: D1Database,
+  key: string,
+  limite: Limite,
+  now: number,
+): Promise<boolean> {
   const row = await db
     .prepare(
       `INSERT INTO rate_limits (key, window_start, count) VALUES (?1, ?2, 1)

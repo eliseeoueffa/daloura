@@ -142,15 +142,26 @@ Parcours d'une era :
 
 ```bash
 npm install
-npm run dev             # http://localhost:5173, puis /ecrans
-npm run build           # vérification des types + build dans dist/
-npm run screens:import  # régénère les écrans depuis les maquettes (hors exclusions)
+npm run db:migrate:local  # base D1 locale
+npm run dev:api           # Worker sur :8787 (emails écrits dans la console sans MakiSend)
+npm run dev               # http://localhost:5173 (proxy /api vers :8787), puis /ecrans
+npm run build             # vérification des types + build dans dist/
+npm test                  # Vitest : projets « worker » (workerd + D1) et « web » (jsdom)
+npm run screens:import    # régénère les écrans depuis les maquettes (hors EXCLUS)
 ```
+
+## Repères dans le code
+
+- `worker/app.ts` : routeur ; `worker/auth/routes.ts` : routes des comptes (dépendances
+  injectées : base, mailer, horloge, pour les tests) ; `worker/lib/` : crypto, blocage, limites.
+- `shared/validation.ts` : règles communes appli + Worker.
+- `src/auth/AuthContext.tsx` : utilisatrice connectée + brouillon d'inscription (en mémoire).
+- Ne pas lancer prettier sur `*.css`, `registry.ts`, `images.ts` (voir `.prettierignore`).
 
 ## Étapes
 
 1. ✅ Fondations : PWA, design system, 51 écrans navigables, Worker avec `/api/health`.
-2. **Comptes** (en cours) :
+2. ✅ **Comptes** (plan de test : `docs/tests/etape-2-comptes.md`) :
    - migrations D1 : `users` (id, email unique, hash et sel du code, `trial_used`,
      `failed_attempts`, `locked_until`, `created_at`), `sessions`, `reset_tokens` (jeton haché,
      expiration, usage unique) ;
@@ -161,8 +172,12 @@ npm run screens:import  # régénère les écrans depuis les maquettes (hors exc
      CodeMailEnvoye, et erreurs CodeErreur, CodeBloque, CodeDifferent, EmailExistant,
      EssaiDejaUtilise ;
    - tests et plan de test.
-   - À obtenir d'Elisée : identifiant de la base D1, adresse de l'instance MakiSend et sa clé (en
-     secret), domaine d'envoi (SPF, DKIM, DMARC).
+   - Ajouts validés par Elisée : vérification de l'email avant l'essai offert (écrans
+     EmailAVerifier et EmailVerifie, sans maquette), blocage qui double (2, 4, 8… 60 min),
+     vérification de l'email dès l'écran Connexion.
+   - Reste à obtenir d'Elisée : identifiant de la base D1, adresse de l'instance MakiSend et sa
+     clé (en secret), domaine d'envoi (SPF, DKIM, DMARC). Format du corps MakiSend à confirmer sur
+     `/openapi.json` de son instance (`worker/email/mailer.ts`).
 3. Photos vers R2.
 4. Essai avec le générateur factice et la notification.
 5. Vote du cercle.
