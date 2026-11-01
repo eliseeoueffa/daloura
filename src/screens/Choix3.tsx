@@ -1,9 +1,10 @@
 // Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Choix-3.dc.html.
+// Ses photos d'inspiration s'affichent dans les cases ; une case sans photo ouvre la galerie.
 // Le coût suit le nombre de coiffures choisies (src/lib/perles.ts). Solde : src/lib/solde.ts.
-import { useState } from "react";
-import { Link } from "react-router";
-import { IMG } from "../assets/images";
-import { useSelfieAffiche } from "../lib/photos";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { GrilleCoiffures } from "../components/GrilleCoiffures";
+import { useEssai, useInspirations, useSelfieAffiche } from "../lib/photos";
 import { Perle, Perles } from "../components/Perle";
 import {
   COUT_GENERATION,
@@ -14,33 +15,21 @@ import {
 } from "../lib/perles";
 import { useSolde } from "../lib/solde";
 
-const COIFFURES = [
-  { slug: "fulani", nom: "Fulani", img: IMG.fulani },
-  { slug: "bantu-knots", nom: "Bantu knots", img: IMG.knots },
-  { slug: "knotless", nom: "Knotless", img: IMG.knotless },
-  { slug: "perruque", nom: "Perruque", img: IMG.perruque },
-  { slug: "cheveux-naturels", nom: "Cheveux naturels", img: IMG.afro },
-  { slug: "locks", nom: "Locks", img: IMG.locs },
-];
-
 export default function Choix3() {
   const { selfie, selfieStyle } = useSelfieAffiche();
   const solde = useSolde("avantEssai");
-  const [choix, setChoix] = useState<string[]>(
-    COIFFURES.slice(0, MAX_COIFFURES).map((c) => c.slug),
-  );
+  const navigate = useNavigate();
+  const { de } = useInspirations();
+  const { essai, charge, choisir } = useEssai();
+  const [choix, setChoix] = useState<string[]>([]);
+  // Reprend le choix précédent (seulement les coiffures qui ont encore leur photo).
+  useEffect(() => {
+    if (charge) setChoix(essai.filter((s) => de(s)).slice(0, MAX_COIFFURES));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [charge]);
   const n = choix.length;
   const cout = n > 0 ? coutEssai(n) : 0;
   const assez = cout <= solde;
-
-  const basculer = (slug: string) =>
-    setChoix((c) =>
-      c.includes(slug)
-        ? c.filter((s) => s !== slug)
-        : c.length < MAX_COIFFURES
-          ? [...c, slug]
-          : c,
-    );
 
   return (
     <div className="scr">
@@ -83,52 +72,16 @@ export default function Choix3() {
           </p>
         </div>
       </div>
-      <div className="g3" style={{ rowGap: "14px" }}>
-        {COIFFURES.map((c) => {
-          const rang = choix.indexOf(c.slug);
-          const choisie = rang >= 0;
-          const bloquee = !choisie && n >= MAX_COIFFURES;
-          return (
-            <button
-              key={c.slug}
-              type="button"
-              aria-pressed={choisie}
-              onClick={() => basculer(c.slug)}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px",
-                position: "relative",
-                opacity: choisie ? 1 : 0.55,
-                background: "none",
-                border: "0",
-                padding: "0",
-                font: "inherit",
-                color: "inherit",
-                cursor: bloquee ? "default" : "pointer",
-              }}
-            >
-              <div
-                className="stk rays"
-                style={{
-                  height: "120px",
-                  boxShadow: choisie
-                    ? "0 0 0 4px #FFFDF8, 0 0 0 7px #702D43"
-                    : undefined,
-                }}
-              >
-                <img src={c.img} alt="" />
-              </div>
-              {choisie && <span className="badge">{rang + 1}</span>}
-              <span className="stk-name">{c.nom}</span>
-            </button>
-          );
-        })}
-      </div>
+      <GrilleCoiffures
+        mode="choix"
+        choisis={choix}
+        max={MAX_COIFFURES}
+        onChoix={setChoix}
+      />
       <span className="hand">
         {n >= MAX_COIFFURES
-          ? "touche une coiffure choisie pour la changer"
-          : "touche une coiffure pour l'ajouter"}
+          ? "touche une coiffure choisie pour la retirer"
+          : "touche une coiffure ; sans photo, ta galerie s'ouvre"}
       </span>
       {n > 0 && !voteAutorise(n) && (
         <p className="small" style={{ textAlign: "center" }}>
@@ -137,15 +90,17 @@ export default function Choix3() {
       )}
       <div className="grow"></div>
       {assez ? (
-        <Link
-          to="/apercus"
+        <button
+          type="button"
           className="btn"
-          aria-disabled={n === 0}
-          onClick={(e) => n === 0 && e.preventDefault()}
-          style={n === 0 ? { opacity: 0.5 } : undefined}
+          disabled={n === 0}
+          onClick={async () => {
+            await choisir(choix);
+            navigate("/attente");
+          }}
         >
           {n > 1 ? `Voir mes ${n} aperçus` : "Voir mon aperçu"}
-        </Link>
+        </button>
       ) : (
         <Link to="/recharger" className="btn">
           Recharger mes perles

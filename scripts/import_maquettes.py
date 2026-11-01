@@ -37,7 +37,10 @@ BLOBS = {
 # les écraser. Ils restent dans registry.ts. Leur maquette reste la référence visuelle :
 # reporter à la main dans le .tsx toute modification de la maquette.
 MANUELS = {
+    "Apercu-detail",
+    "Apercu-offert",
     "Apercus",
+    "Attente",
     "Bibliotheque",
     "Bibliotheque-vide",
     "Carnet",

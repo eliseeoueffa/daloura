@@ -1,9 +1,16 @@
-// Généré depuis design/maquettes/Attente.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Attente.dc.html.
+// Montre les coiffures choisies et ses vraies photos (selfie, inspirations) ; l'aperçu reste
+// l'illustration de la coiffure tant que l'IA n'est pas branchée.
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
+import { PhotoInspiration } from "../components/PhotoInspiration";
+import { useLooks } from "../lib/essai";
+import { useSelfieAffiche } from "../lib/photos";
 
 export default function Attente() {
+  const looks = useLooks();
+  const look = looks[0];
+  const { selfie, selfieStyle } = useSelfieAffiche();
   return (
     <div className="scr wine">
       <div className="top">
@@ -24,11 +31,11 @@ export default function Attente() {
             boxShadow: "0 0 0 4px #FFFDF8",
           }}
         >
-          <img src={IMG.selfie} alt="Ton selfie" />
+          <img src={selfie} alt="Ton selfie" style={selfieStyle} />
         </div>
         <span style={{ fontSize: "24px", color: "#E8A93A" }}>+</span>
         <div className="stk rays" style={{ width: "88px", height: "96px" }}>
-          <img src={IMG.knotless} alt="Inspiration knotless" />
+          <PhotoInspiration slug={look.slug} alt={`Inspiration ${look.nom}`} />
         </div>
       </div>
       <div
@@ -46,7 +53,7 @@ export default function Attente() {
           style={{ background: "linear-gradient(160deg, #EADFCF, #D9C4B5)" }}
         >
           <img
-            src={IMG.knotless}
+            src={look.img}
             alt=""
             style={{ filter: "blur(10px) saturate(.6)", opacity: ".65" }}
           />
@@ -72,7 +79,10 @@ export default function Attente() {
         te prévient.
       </p>
       <div className="grow"></div>
-      <Link to="/apercu-offert" className="btn cream">
+      <Link
+        to={looks.length > 1 ? "/apercus" : "/apercu-offert"}
+        className="btn cream"
+      >
         Voir l'aperçu (démo)
       </Link>{" "}
       <Link to="/echec-creation" className="lnk">

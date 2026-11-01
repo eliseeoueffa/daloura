@@ -28,11 +28,13 @@
   <div class="grow"></div>
   <a class="btn" href="Selfie.dc.html">Continuer avec ton selfie</a>
 </div>
-<!-- ÉTATS DE L'ÉCRAN (faits dans src/screens/Bibliotheque.tsx) :
-  * Sans photo : les 6 stickers ci-dessus en exemple (pâles) et l'alerte « Télécharge tes inspirations… ».
-  * Avec ses photos : une case par photo (« Photo 1 », « Photo 2 »…) avec une croix pour la retirer, puis une case
-    en pointillés « + Ajouter » ; la pastille compte les photos (« 2 photos »). « Ajouter des photos » ouvre la galerie
-    (plusieurs photos à la fois).
+<!-- ÉTATS DE L'ÉCRAN (faits dans src/screens/Bibliotheque.tsx, grille src/components/GrilleCoiffures.tsx) :
+  * Une case par coiffure. Sans photo : l'illustration pâle avec l'étiquette « + ta photo » ; la toucher ouvre la
+    galerie et la photo choisie va dans CETTE case.
+  * Avec sa photo : la photo remplit la case, une croix la retire, toucher la case la remplace.
+  * Alerte : « Touche une coiffure pour y mettre ta photo d'inspiration : capture Instagram, Pinterest, TikTok ou
+    photo de ta galerie. » ; pastille « 0 photo », « 1 photo », « 2 photos »…
+  * Sans aucune photo, le bouton devient « Ajoute au moins une photo » (désactivé).
 -->
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>

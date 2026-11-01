@@ -66,8 +66,13 @@ My Hair Recap, payé en perles sans Itaja : 3 mois = 20, 6 mois = 40, 12 mois = 
 
 ## Photos
 
-- Selfie et inspirations sont gardés **dans le navigateur** (IndexedDB, `src/lib/photos.ts`), redimensionnés
-  à 1600 px en JPEG, jusqu'à l'envoi vers R2 (étape 3). `useSelfie()`, `useInspirations()`, `useSelfieAffiche()`.
+- Selfie, inspirations et coiffures choisies pour l'essai sont gardés **dans le navigateur** (IndexedDB,
+  `src/lib/photos.ts`), photos redimensionnées à 1600 px en JPEG, jusqu'à l'envoi vers R2 (étape 3).
+  `useSelfie()`, `useInspirations()` (une photo par coiffure : `de(slug)`, `mettre(slug, fichier)`), `useEssai()`.
+- Les coiffures sont dans `src/lib/coiffures.ts` (slugs de la table `styles`). `<GrilleCoiffures>` est la grille
+  commune à la bibliothèque et aux écrans de choix : toucher une case sans photo ouvre la galerie, la photo va dans
+  cette case. `useLooks()` (`src/lib/essai.ts`) donne les coiffures choisies aux écrans d'attente et d'aperçus.
+- Tant que l'IA n'est pas branchée, l'« aperçu » affiché est l'illustration de la coiffure.
 - Prendre une photo : sur écran tactile, l'appareil photo du système (`<input capture="user">`) ; sur ordinateur,
   la webcam dans la page (`getUserMedia`), avec un message clair si l'accès est refusé.
 - `<ChoixFichier>` (`src/components/ChoixFichier.tsx`) ouvre la galerie ou l'appareil photo.
