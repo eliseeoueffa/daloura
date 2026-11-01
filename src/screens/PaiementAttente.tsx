@@ -1,9 +1,11 @@
-// Généré depuis design/maquettes/Paiement-attente.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Paiement-attente.dc.html.
+// Sachets et prix : src/lib/perles.ts. Solde : src/lib/solde.ts.
+import { SACHET_CONSEILLE, formatXof, sachet } from "../lib/perles";
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
 
 export default function PaiementAttente() {
+  const s = sachet(SACHET_CONSEILLE)!; // provisoire : le paiement en cours viendra de l'API
   return (
     <div className="scr">
       <div className="top">
@@ -11,7 +13,9 @@ export default function PaiementAttente() {
           <img src={IMG.logo} alt="" />
           daloura
         </span>
-        <span>2 500 F</span>
+        <span>
+          {s.nom} · {formatXof(s.prixXof)}
+        </span>
       </div>
       <div className="grow"></div>
       <div

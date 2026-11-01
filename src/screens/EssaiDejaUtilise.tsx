@@ -44,7 +44,7 @@ export default function EssaiDejaUtilise() {
         </span>
       </div>
       <h1 className="h1" style={{ textAlign: "center" }}>
-        L'essai offert a déjà servi sur ce téléphone
+        Les perles offertes ont déjà servi sur ce téléphone
       </h1>
       <p className="p" style={{ textAlign: "center" }}>
         Pour essayer d'autres coiffures, choisis une offre. Tu as déjà un compte

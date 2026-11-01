@@ -1,7 +1,9 @@
-// Généré depuis design/maquettes/Apercus.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Apercus.dc.html.
+// Chiffres : src/lib/perles.ts. Solde : src/lib/solde.ts.
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
+import { Perles } from "../components/Perle";
+import { useSolde } from "../lib/solde";
 
 export default function Apercus() {
   return (
@@ -11,7 +13,9 @@ export default function Apercus() {
           <img src={IMG.logo} alt="" />
           daloura
         </span>
-        <span className="pill">2 essais restants</span>
+        <span className="pill">
+          <Perles n={useSolde("apresEssai")} />
+        </span>
       </div>
       <h1 className="h1">Te voilà, en trois looks</h1>
       <p className="small">Touche un aperçu pour le voir en grand.</p>

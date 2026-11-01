@@ -8,7 +8,10 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc -b",
+    "test": "vitest run",
     "deploy": "npm run build && wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply daloura --local",
+    "db:migrate:remote": "wrangler d1 migrations apply daloura --remote",
     "screens:import": "python3 scripts/import_maquettes.py && prettier --write 'src/screens/*.tsx'"
   },
   "dependencies": {
@@ -20,6 +23,7 @@
     "react-router": "^8.5.1"
   },
   "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.4.11",
     "@cloudflare/workers-types": "^5.20261101.1",
     "@types/node": "^22.20.5",
     "@types/react": "^19.2.0",
@@ -29,6 +33,7 @@
     "typescript": "^5.9.3",
     "vite": "^8.3.5",
     "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.0.5",
     "wrangler": "^4.156.0"
   }
 }

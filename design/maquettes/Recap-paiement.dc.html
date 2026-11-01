@@ -13,12 +13,12 @@
 <style>body{margin:0}</style>
 </helmet>
 <div class="scr">
-  <div class="top"><a class="back" href="Carnet.dc.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Carnet</a></div>
+  <div class="top"><a class="back" href="Carnet.dc.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Carnet</a><span class="pill"><span class="perle" aria-hidden="true"></span>57 perles</span></div>
   <h1 class="h1">Ton récapitulatif</h1>
   <p class="small">L'offre que tu as choisie :</p>
   <div style="background: #E8A93A; border-radius: 12px; padding: 18px 14px 14px; display: flex; flex-direction: column; gap: 8px; color: #49332F; position: relative; margin-top: 6px">
     <span class="pill" style="position: absolute; top: -13px; left: 14px; min-height: 26px; padding: 0 10px; background: #702D43; color: #F5EFE6">6 mois</span>
-    <div class="row" style="justify-content: space-between"><p style="margin: 0; font-family: 'Corben', Georgia, serif; font-weight: 700; font-size: 18px; font-variant-ligatures: none">My Hair Recap</p><p class="h2" style="white-space: nowrap">2 000 F</p></div>
+    <div class="row" style="justify-content: space-between"><p style="margin: 0; font-family: 'Corben', Georgia, serif; font-weight: 700; font-size: 18px; font-variant-ligatures: none">My Hair Recap</p><p class="h2" style="white-space: nowrap"><span class="perle" aria-hidden="true"></span>40 perles</p></div>
     <p style="margin: 0; font-size: 14px">Tes eras de juin à novembre 2026, réunies dans un recap à garder ou à partager.</p>
     <div class="row" style="gap: 6px">
       <div class="pola" style="width: 46px; padding: 3px 3px 0; transform: rotate(-6deg)"><div class="ph bg-cream"><img src="/_blob/3ae7835cd76617bcc8c9539765e16470" alt=""></div><div style="height: 7px"></div></div>
@@ -27,16 +27,18 @@
       <span style="font-size: 13px; font-weight: 650; margin-left: 6px">3 eras incluses</span>
     </div>
   </div>
-  <div class="card" style="gap: 10px">
-    <div class="row" style="justify-content: space-between"><p class="h2">Total</p><p class="h2" style="color: #702D43">2 000 F</p></div>
-    <p class="small">Compte : awa.k@gmail.com</p>
-  </div>
-  <div class="card" style="background: #F3DDE1; border: 0; gap: 6px">
-    <p class="label">Paiement sécurisé par Itaja</p>
-    <p class="small" style="color: #49332F">Mobile Money, carte bancaire ou autre moyen, selon ton pays.</p>
+  <div class="card" style="gap: 6px">
+    <p class="p">Ton recap de 6 mois : <span class="perle" aria-hidden="true"></span>40 perles. Il t'en restera <span class="perle" aria-hidden="true"></span>17.</p>
+    <p class="small">Payé avec tes perles, sans nouveau paiement.</p>
   </div>
   <div class="grow"></div>
-  <a class="btn" href="Paiement-externe.dc.html">Payer 2 000 F</a>
+  <a class="btn" href="Recap.dc.html">Créer mon recap</a>
+  <!-- ÉTAT SOLDE INSUFFISANT (exemple : solde de 33 perles, pastille « 33 perles »).
+       Remplace la carte ci-dessus et le bouton « Créer mon recap » par :
+  <div class="alert err"><span class="ic">!</span><div><b>Il te manque <span class="perle" aria-hidden="true"></span>7 perles</b>Ton recap de 6 mois coûte 40 perles. Recharge pour le créer.</div></div>
+  <div class="grow"></div>
+  <a class="btn" href="Recharger.dc.html">Recharger mes perles</a>
+  -->
   <a class="lnk" href="Carnet.dc.html">Choisir une autre période</a>
 </div>
 </x-dc>

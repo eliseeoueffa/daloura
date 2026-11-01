@@ -1,9 +1,20 @@
-// Généré depuis design/maquettes/Offres.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Offres.dc.html.
+// Sachets et prix : src/lib/perles.ts. Solde : src/lib/solde.ts.
+import { useState } from "react";
 import { Link } from "react-router";
+import { Perles } from "../components/Perle";
+import { PrixRecaps, RappelCout, Sachets } from "../components/Sachets";
+import {
+  SACHET_CONSEILLE,
+  dureesRecap,
+  sachet,
+  type SachetId,
+} from "../lib/perles";
+import { useSolde } from "../lib/solde";
 import { IMG } from "../assets/images";
 
 export default function Offres() {
+  const [choisi, setChoisi] = useState<SachetId>(SACHET_CONSEILLE);
   return (
     <div className="scr" style={{ gap: "14px" }}>
       <div className="top">
@@ -20,7 +31,9 @@ export default function Offres() {
           </svg>
           Retour
         </Link>
-        <span className="pill">0 essai</span>
+        <span className="pill">
+          <Perles n={useSolde("vide")} />
+        </span>
       </div>
       <div style={{ position: "relative", height: "104px" }}>
         <div
@@ -76,58 +89,8 @@ export default function Offres() {
         </span>
       </div>
       <h1 className="h1">Ton rendez-vous approche ?</h1>
-      <div
-        className="card"
-        style={{ position: "relative", marginTop: "10px", paddingTop: "18px" }}
-      >
-        <span
-          className="pill sign"
-          style={{
-            position: "absolute",
-            top: "-13px",
-            left: "14px",
-            minHeight: "26px",
-            padding: "0 10px",
-          }}
-        >
-          3 coiffures
-        </span>
-        <div className="row" style={{ justifyContent: "space-between" }}>
-          <p className="h2">My Hair Moment</p>
-          <p className="h2" style={{ color: "#702D43", whiteSpace: "nowrap" }}>
-            1 000 F
-          </p>
-        </div>
-        <p className="small">
-          1 essai : tu télécharges 3 inspirations et ton cercle choisit.
-        </p>
-      </div>
-      <div
-        className="card on"
-        style={{ position: "relative", marginTop: "10px", paddingTop: "18px" }}
-      >
-        <span
-          className="pill sign"
-          style={{
-            position: "absolute",
-            top: "-13px",
-            left: "14px",
-            minHeight: "26px",
-            padding: "0 10px",
-          }}
-        >
-          9 coiffures
-        </span>
-        <div className="row" style={{ justifyContent: "space-between" }}>
-          <p className="h2">My Hair Era</p>
-          <p className="h2" style={{ color: "#702D43", whiteSpace: "nowrap" }}>
-            2 500 F
-          </p>
-        </div>
-        <p className="small">
-          3 essais de 3 coiffures, à utiliser quand tu veux.
-        </p>
-      </div>
+      <Sachets choisi={choisi} onChoix={setChoisi} />
+      <RappelCout />
       <div
         style={{
           background: "#E8A93A",
@@ -156,53 +119,14 @@ export default function Offres() {
           </span>
         </div>
         <p style={{ margin: "0", fontSize: "14px" }}>
-          Ton récap de coiffures sur 3, 6 ou 12 mois, à créer depuis ton carnet.
+          Ton récap de coiffures sur {dureesRecap()} mois, à créer depuis ton
+          carnet.
         </p>
-        <div className="g3" style={{ gap: "6px" }}>
-          <span
-            style={{
-              background: "#F5EFE6",
-              borderRadius: "8px",
-              padding: "6px 4px",
-              textAlign: "center",
-              fontSize: "13px",
-              fontWeight: "650",
-            }}
-          >
-            3 mois
-            <br />1 000 F
-          </span>{" "}
-          <span
-            style={{
-              background: "#F5EFE6",
-              borderRadius: "8px",
-              padding: "6px 4px",
-              textAlign: "center",
-              fontSize: "13px",
-              fontWeight: "650",
-            }}
-          >
-            6 mois
-            <br />2 000 F
-          </span>{" "}
-          <span
-            style={{
-              background: "#F5EFE6",
-              borderRadius: "8px",
-              padding: "6px 4px",
-              textAlign: "center",
-              fontSize: "13px",
-              fontWeight: "650",
-            }}
-          >
-            12 mois
-            <br />4 000 F
-          </span>
-        </div>
+        <PrixRecaps />
       </div>
       <div className="grow"></div>
-      <Link to="/paiement" className="btn">
-        Continuer avec My Hair Era
+      <Link to={`/paiement?sachet=${choisi}`} className="btn">
+        Continuer avec {sachet(choisi)!.nom}
       </Link>
       <p className="small" style={{ textAlign: "center" }}>
         Pas d'abonnement. Tu paies seulement quand tu en as besoin.

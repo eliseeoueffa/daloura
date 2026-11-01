@@ -1,9 +1,13 @@
-// Généré depuis design/maquettes/Carnet.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Carnet.dc.html.
+// Prix des recaps : src/lib/perles.ts. Solde : src/lib/solde.ts.
+import { useState } from "react";
 import { Link } from "react-router";
+import { Perles } from "../components/Perle";
+import { RECAPS, coutRecap, type RecapMois } from "../lib/perles";
 import { IMG } from "../assets/images";
 
 export default function Carnet() {
+  const [mois, setMois] = useState<RecapMois>(6);
   return (
     <div className="scr" style={{ paddingBottom: "0", gap: "14px" }}>
       <div className="top">
@@ -84,54 +88,46 @@ export default function Carnet() {
             </p>
           </div>
         </div>
-        <div className="g3" style={{ gap: "6px" }}>
-          <span
-            style={{
-              background: "#F5EFE6",
-              borderRadius: "8px",
-              padding: "7px 4px",
-              textAlign: "center",
-              fontSize: "13px",
-              fontWeight: "650",
-            }}
-          >
-            3 mois
-            <br />1 000 F
-          </span>{" "}
-          <span
-            style={{
-              background: "#702D43",
-              color: "#F5EFE6",
-              borderRadius: "8px",
-              padding: "7px 4px",
-              textAlign: "center",
-              fontSize: "13px",
-              fontWeight: "650",
-            }}
-          >
-            6 mois
-            <br />2 000 F
-          </span>{" "}
-          <span
-            style={{
-              background: "#F5EFE6",
-              borderRadius: "8px",
-              padding: "7px 4px",
-              textAlign: "center",
-              fontSize: "13px",
-              fontWeight: "650",
-            }}
-          >
-            12 mois
-            <br />4 000 F
-          </span>
+        <div
+          className="g3"
+          style={{ gap: "6px" }}
+          role="radiogroup"
+          aria-label="Durée du recap"
+        >
+          {RECAPS.map((r) => (
+            <button
+              key={r.mois}
+              type="button"
+              role="radio"
+              aria-checked={mois === r.mois}
+              onClick={() => setMois(r.mois)}
+              style={{
+                background: mois === r.mois ? "#702D43" : "#F5EFE6",
+                color: mois === r.mois ? "#F5EFE6" : "#49332F",
+                border: "0",
+                borderRadius: "8px",
+                padding: "7px 4px",
+                textAlign: "center",
+                font: "inherit",
+                fontSize: "13px",
+                fontWeight: "650",
+                cursor: "pointer",
+              }}
+            >
+              {r.mois} mois
+              <br />
+              <Perles n={r.perles} />
+            </button>
+          ))}
         </div>
         <Link
-          to="/recap-paiement"
+          to={`/recap-paiement?mois=${mois}`}
           className="btn"
           style={{ minHeight: "46px" }}
         >
-          Créer mon recap de 6 mois
+          <span>
+            Créer mon recap de {mois} mois · <Perles n={coutRecap(mois)!} />
+          </span>
         </Link>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>

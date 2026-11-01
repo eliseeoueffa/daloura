@@ -6,7 +6,8 @@ Web app mobile (PWA) : vois une coiffure sur ton visage avant d'aller au salon, 
 
 - **Front** : React + Vite + TypeScript, PWA installable (`vite-plugin-pwa`).
 - **API** : Cloudflare Worker (`worker/index.ts`), qui sert aussi les fichiers de l'appli.
-- **À venir** : D1 (base), R2 (photos), Queues (aperçus), MakiSend (emails), Itaja (paiement), Three.js (Hair Recap seulement).
+- **Base** : Cloudflare D1 `daloura` (binding `DB`), schéma dans `migrations/`.
+- **À venir** : R2 (photos), Queues (aperçus), MakiSend (emails), Itaja (paiement), Three.js (Hair Recap seulement).
 
 ## Lancer en local
 
@@ -14,15 +15,27 @@ Web app mobile (PWA) : vois une coiffure sur ton visage avant d'aller au salon, 
 npm install
 npm run dev        # http://localhost:5173 (et sur le téléphone via l'IP de l'ordinateur)
 npm run build      # vérification des types + build dans dist/
+npm test           # tests du Worker (perles) sur une base D1 locale
 ```
+
+Base locale (à faire une fois, puis après chaque nouvelle migration) :
+
+```bash
+npm run db:migrate:local    # crée la base D1 locale dans .wrangler/
+npm run db:migrate:remote   # applique les migrations sur la base Cloudflare
+```
+
+Pour changer le schéma, ajoute un fichier `migrations/000N_….sql` (ne modifie jamais une migration déjà appliquée).
 
 `/ecrans` liste tous les écrans pour les relire un par un sur téléphone.
 
 ## Écrans
 
+Les règles des offres (perles, sachets, coûts) sont dans `CLAUDE.md` et les chiffres dans `src/lib/perles.ts`.
+
 Les écrans de `src/screens/` sont générés depuis les maquettes validées (`design/maquettes/*.dc.html`)
 par `npm run screens:import`. Ils sont statiques (fausses données) : chaque étape les rend dynamiques.
-Dès qu'un écran est modifié à la main, retire-le de la génération pour ne pas l'écraser.
+Dès qu'un écran est modifié à la main, ajoute-le à `MANUELS` dans `scripts/import_maquettes.py` pour ne pas l'écraser.
 
 Les visages et stickers sont des illustrations provisoires (`src/assets/`), à remplacer par les photos
 de la séance et les stickers peints.
@@ -42,6 +55,6 @@ Les clés (MakiSend, Itaja…) se mettent dans les **réglages du Worker** (vari
 3. Photos : selfie et inspirations vers R2 (liens signés, bucket privé, suppression automatique).
 4. Essai : générateur d'aperçus factice (IA branchée plus tard), essai offert, notification.
 5. Vote du cercle : lien WhatsApp, vote sans compte, résultats.
-6. Paiement Itaja : offres, retour, crédits.
+6. Paiement Itaja : sachets de perles, retour, crédit (logique des perles déjà prête : `worker/perles.ts`).
 7. Carnet, vraie photo, Hair Recap (Three.js, chargé à part).
 8. Finitions : notifications, hors connexion, tests sur Android d'entrée de gamme.

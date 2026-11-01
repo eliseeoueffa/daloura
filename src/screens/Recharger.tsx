@@ -1,9 +1,20 @@
-// Généré depuis design/maquettes/Recharger.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Recharger.dc.html.
+// Sachets et prix : src/lib/perles.ts. Solde : src/lib/solde.ts.
+import { useState } from "react";
 import { Link } from "react-router";
+import { Perles } from "../components/Perle";
+import { RappelCout, Sachets } from "../components/Sachets";
+import {
+  SACHET_CONSEILLE,
+  dureesRecap,
+  sachet,
+  type SachetId,
+} from "../lib/perles";
+import { useSolde } from "../lib/solde";
 import { IMG } from "../assets/images";
 
 export default function Recharger() {
+  const [choisi, setChoisi] = useState<SachetId>(SACHET_CONSEILLE);
   return (
     <div className="scr" style={{ gap: "14px" }}>
       <div className="top">
@@ -20,11 +31,13 @@ export default function Recharger() {
           </svg>
           Profil
         </Link>
-        <span className="pill">2 essais restants</span>
+        <span className="pill">
+          <Perles n={useSolde("apresEssai")} />
+        </span>
       </div>
-      <h1 className="h1">Recharge tes essais</h1>
+      <h1 className="h1">Recharge tes perles</h1>
       <p className="p">
-        Choisis l'offre qui te va. Tes essais s'ajoutent à ceux qu'il te reste.
+        Choisis ton sachet. Tes perles s'ajoutent à celles qu'il te reste.
       </p>
       <div style={{ position: "relative", height: "96px" }}>
         <div
@@ -79,68 +92,18 @@ export default function Recharger() {
           ta prochaine era t'attend
         </span>
       </div>
-      <div
-        className="card"
-        style={{ position: "relative", marginTop: "10px", paddingTop: "18px" }}
-      >
-        <span
-          className="pill sign"
-          style={{
-            position: "absolute",
-            top: "-13px",
-            left: "14px",
-            minHeight: "26px",
-            padding: "0 10px",
-          }}
-        >
-          3 coiffures
-        </span>
-        <div className="row" style={{ justifyContent: "space-between" }}>
-          <p className="h2">My Hair Moment</p>
-          <p className="h2" style={{ color: "#702D43", whiteSpace: "nowrap" }}>
-            1 000 F
-          </p>
-        </div>
-        <p className="small">
-          1 essai : tu télécharges 3 inspirations et ton cercle choisit.
-        </p>
-      </div>
-      <div
-        className="card on"
-        style={{ position: "relative", marginTop: "10px", paddingTop: "18px" }}
-      >
-        <span
-          className="pill sign"
-          style={{
-            position: "absolute",
-            top: "-13px",
-            left: "14px",
-            minHeight: "26px",
-            padding: "0 10px",
-          }}
-        >
-          9 coiffures
-        </span>
-        <div className="row" style={{ justifyContent: "space-between" }}>
-          <p className="h2">My Hair Era</p>
-          <p className="h2" style={{ color: "#702D43", whiteSpace: "nowrap" }}>
-            2 500 F
-          </p>
-        </div>
-        <p className="small">
-          3 essais de 3 coiffures, à utiliser quand tu veux.
-        </p>
-      </div>
+      <Sachets choisi={choisi} onChoix={setChoisi} />
+      <RappelCout />
       <p className="small">
-        Ton hair recap sur 3, 6 ou 12 mois se crée depuis ton{" "}
+        Ton hair recap sur {dureesRecap()} mois se crée depuis ton{" "}
         <Link to="/carnet" style={{ color: "#702D43", fontWeight: "650" }}>
           carnet
         </Link>
         .
       </p>
       <div className="grow"></div>
-      <Link to="/paiement" className="btn">
-        Continuer avec My Hair Era
+      <Link to={`/paiement?sachet=${choisi}`} className="btn">
+        Continuer avec {sachet(choisi)!.nom}
       </Link>
       <p className="small" style={{ textAlign: "center" }}>
         Paiement sécurisé par Itaja. Pas d'abonnement.

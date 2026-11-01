@@ -42,7 +42,7 @@ export default function CodeErreur() {
       <div className="alert err">
         <span className="ic">!</span>
         <div>
-          <b>Ce code n'est pas le bon.</b>Il te reste 2 essais. Après, la
+          <b>Ce code n'est pas le bon.</b>Il te reste 2 tentatives. Après, la
           connexion est bloquée 15 minutes.
         </div>
       </div>

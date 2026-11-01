@@ -9,6 +9,15 @@
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*"]
   },
-  "observability": { "enabled": true }
-  // Étape 2 : base D1 "daloura" (binding DB). Étape 3 : bucket R2 "daloura-media" (binding MEDIA).
+  "observability": { "enabled": true },
+  // Base D1 : schéma dans migrations/ (npm run db:migrate:local / db:migrate:remote).
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "daloura",
+      "database_id": "4d6f8eb5-bf7b-449d-9440-09593d870d2b",
+      "migrations_dir": "migrations"
+    }
+  ]
+  // Étape 3 : bucket R2 "daloura-media" (binding MEDIA).
 }

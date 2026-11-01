@@ -11,7 +11,7 @@ export default function ApercuOffert() {
           <img src={IMG.logo} alt="" />
           daloura
         </span>
-        <span className="pill">Essai offert utilisé</span>
+        <span className="pill">Perles offertes utilisées</span>
       </div>
       <h1 className="h1">Te voilà en knotless</h1>
       <div

@@ -1,7 +1,9 @@
-// Généré depuis design/maquettes/Echec-creation.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Echec-creation.dc.html.
+// Chiffres : src/lib/perles.ts. Solde : src/lib/solde.ts.
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
+import { Perles } from "../components/Perle";
+import { COUT_GENERATION } from "../lib/perles";
 
 export default function EchecCreation() {
   return (
@@ -53,8 +55,8 @@ export default function EchecCreation() {
         Ton aperçu n'a pas pu être créé
       </h1>
       <p className="p" style={{ textAlign: "center" }}>
-        La coiffure de ta photo d'inspiration n'est pas assez visible. Ton essai
-        n'a pas été utilisé.
+        La coiffure de ta photo d'inspiration n'est pas assez visible. Tes{" "}
+        <Perles n={COUT_GENERATION} /> t'ont été rendues.
       </p>
       <div className="grow"></div>
       <Link to="/choix-essai" className="btn">

@@ -54,7 +54,7 @@ export default function CodeBloque() {
         </svg>
       </div>
       <h1 className="h1" style={{ textAlign: "center" }}>
-        Trop d'essais
+        Trop de tentatives
       </h1>
       <p className="p" style={{ textAlign: "center" }}>
         Pour protéger tes selfies et ton carnet, la connexion est bloquée

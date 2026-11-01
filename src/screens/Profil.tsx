@@ -1,7 +1,9 @@
-// Généré depuis design/maquettes/Profil.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Profil.dc.html.
+// Chiffres : src/lib/perles.ts. Solde : src/lib/solde.ts.
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
+import { Perle } from "../components/Perle";
+import { useSolde } from "../lib/solde";
 
 export default function Profil() {
   return (
@@ -30,37 +32,44 @@ export default function Profil() {
           <p className="small">awa.k@gmail.com</p>
         </div>
       </div>
-      <div
+      <Link
+        to="/recharger"
         className="card"
         style={{
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
+          gap: "12px",
           background: "#F3DDE1",
           border: "0",
+          textDecoration: "none",
+          minHeight: "52px",
         }}
       >
-        <div>
-          <p className="small" style={{ color: "#49332F" }}>
-            Il te reste
-          </p>
-          <p
-            style={{
-              margin: "0",
-              fontFamily: "'Corben', Georgia, serif",
-              fontWeight: "700",
-              fontSize: "22px",
-              color: "#702D43",
-              fontVariantLigatures: "none",
-            }}
-          >
-            2 essais
-          </p>
-        </div>
-        <Link to="/recharger" className="btn" style={{ minHeight: "44px" }}>
-          Recharger
-        </Link>
-      </div>
+        <p
+          style={{
+            margin: "0",
+            fontFamily: "'Corben', Georgia, serif",
+            fontWeight: "700",
+            fontSize: "22px",
+            color: "#702D43",
+            fontVariantLigatures: "none",
+          }}
+        >
+          Mes perles · <Perle />
+          {useSolde("apresEssai")}
+        </p>
+        <span
+          style={{
+            color: "#702D43",
+            fontWeight: "700",
+            fontSize: "15px",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Recharger ›
+        </span>{" "}
+      </Link>
       <div className="card" style={{ padding: "0", gap: "0" }}>
         <Link
           to="/selfie"
