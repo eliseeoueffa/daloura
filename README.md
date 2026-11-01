@@ -6,7 +6,8 @@ Web app mobile (PWA) : vois une coiffure sur ton visage avant d'aller au salon, 
 
 - **Front** : React + Vite + TypeScript, PWA installable (`vite-plugin-pwa`).
 - **API** : Cloudflare Worker (`worker/index.ts`), qui sert aussi les fichiers de l'appli.
-- **À venir** : D1 (base), R2 (photos), Queues (aperçus), MakiSend (emails), Itaja (paiement), Three.js (Hair Recap seulement).
+- **Base** : Cloudflare D1 `daloura` (binding `DB`), schéma dans `migrations/`.
+- **À venir** : R2 (photos), Queues (aperçus), MakiSend (emails), Itaja (paiement), Three.js (Hair Recap seulement).
 
 ## Lancer en local
 
@@ -15,6 +16,15 @@ npm install
 npm run dev        # http://localhost:5173 (et sur le téléphone via l'IP de l'ordinateur)
 npm run build      # vérification des types + build dans dist/
 ```
+
+Base locale (à faire une fois, puis après chaque nouvelle migration) :
+
+```bash
+npm run db:migrate:local    # crée la base D1 locale dans .wrangler/
+npm run db:migrate:remote   # applique les migrations sur la base Cloudflare
+```
+
+Pour changer le schéma, ajoute un fichier `migrations/000N_….sql` (ne modifie jamais une migration déjà appliquée).
 
 `/ecrans` liste tous les écrans pour les relire un par un sur téléphone.
 

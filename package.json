@@ -9,6 +9,8 @@
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc -b",
     "deploy": "npm run build && wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply daloura --local",
+    "db:migrate:remote": "wrangler d1 migrations apply daloura --remote",
     "screens:import": "python3 scripts/import_maquettes.py && prettier --write 'src/screens/*.tsx'"
   },
   "dependencies": {
