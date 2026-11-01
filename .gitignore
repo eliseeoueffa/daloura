@@ -9,6 +9,7 @@ dev-dist/
 .wrangler/
 .dev.vars
 .dev.vars.*
+!.dev.vars.example
 
 # Fichiers locaux
 *.local

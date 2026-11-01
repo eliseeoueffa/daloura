@@ -1,0 +1,8 @@
+# Copie ce fichier en .dev.vars (ignoré par git) pour le développement local.
+# Sans MAKISEND_URL ni clé, les emails sont écrits dans la console de wrangler dev.
+APP_URL=http://localhost:5173
+# MAKISEND_URL=https://ton-instance-makisend.example
+# MAKISEND_API_KEY=
+# MAKISEND_TEMPLATE_VERIFICATION=verification
+# MAKISEND_TEMPLATE_REINITIALISATION=reinitialisation
+# MAKISEND_TEMPLATE_CODE_CHANGE=code-change
