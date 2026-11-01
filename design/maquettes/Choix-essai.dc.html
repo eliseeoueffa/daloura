@@ -30,6 +30,12 @@
   <div class="grow"></div>
   <a class="btn" href="Connexion.dc.html">Voir mon aperçu</a>
 </div>
+<!-- ÉTATS DE L'ÉCRAN (faits dans src/screens/ChoixEssai.tsx) :
+  * Grille des coiffures (src/components/GrilleCoiffures.tsx) : ses photos d'inspiration dans les cases ;
+    une case sans photo (« + ta photo ») ouvre la galerie, et la coiffure est choisie dès que la photo est ajoutée.
+  * Bouton « Voir mon aperçu » désactivé tant qu'aucune coiffure n'est choisie, avec dessous :
+    « Touche une coiffure. Sans photo, ta galerie s'ouvre pour l'ajouter. » La case « Ajouter » disparaît.
+-->
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {

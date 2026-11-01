@@ -1,11 +1,15 @@
 // Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Profil.dc.html.
 // Chiffres : src/lib/perles.ts. Solde : src/lib/solde.ts.
+import { useState } from "react";
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
 import { Perle } from "../components/Perle";
+import { effacerPhotos, useSelfieAffiche } from "../lib/photos";
 import { useSolde } from "../lib/solde";
 
 export default function Profil() {
+  const { selfie, selfieStyle } = useSelfieAffiche();
+  const [efface, setEfface] = useState(false);
   return (
     <div className="scr" style={{ paddingBottom: "0", gap: "14px" }}>
       <div className="top">
@@ -23,7 +27,7 @@ export default function Profil() {
             boxShadow: "0 0 0 4px #FFFDF8, 0 0 0 6px #E8A93A",
           }}
         >
-          <img src={IMG.selfie} alt="Ton selfie" />
+          <img src={selfie} alt="Ton selfie" style={selfieStyle} />
         </div>
         <div style={{ minWidth: "0" }}>
           <h1 className="h1" style={{ fontSize: "26px" }}>
@@ -173,8 +177,18 @@ export default function Profil() {
             </span>
           </span>
         </div>
-        <Link
-          to="/profil"
+        <button
+          type="button"
+          onClick={async () => {
+            if (
+              window.confirm(
+                "Supprimer ton selfie, tes inspirations et tes aperçus de ce téléphone ? C'est définitif.",
+              )
+            ) {
+              await effacerPhotos();
+              setEfface(true);
+            }
+          }}
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -184,17 +198,25 @@ export default function Profil() {
             boxSizing: "border-box",
             textDecoration: "none",
             color: "#A1262E",
+            background: "none",
+            border: 0,
+            font: "inherit",
+            textAlign: "left",
+            width: "100%",
+            cursor: "pointer",
           }}
         >
           <span>
-            <b style={{ fontSize: "15px" }}>Supprimer mes photos et aperçus</b>
+            <b style={{ fontSize: "15px" }}>
+              {efface ? "Photos supprimées" : "Supprimer mes photos et aperçus"}
+            </b>
             <br />
             <span className="small">
               Selfie, inspirations et aperçus, définitivement
             </span>
           </span>
           <span>›</span>
-        </Link>
+        </button>
       </div>
       <Link to="/" className="lnk">
         Me déconnecter

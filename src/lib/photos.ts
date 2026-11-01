@@ -1,15 +1,24 @@
-// Photos de l'utilisatrice (selfie et inspirations), gardées DANS LE NAVIGATEUR (IndexedDB)
-// jusqu'à l'envoi vers R2 (étape 3). Rien ne quitte le téléphone pour l'instant.
-// Si IndexedDB est indisponible (navigation privée…), les photos restent en mémoire le temps de la visite.
+// Photos de l'utilisatrice (selfie, inspirations rangées par coiffure) et coiffures choisies pour
+// l'essai en préparation. Tout est gardé DANS LE NAVIGATEUR (IndexedDB) jusqu'à l'envoi vers R2
+// (étape 3) : rien ne quitte le téléphone pour l'instant.
+// Si IndexedDB est indisponible (navigation privée…), tout reste en mémoire le temps de la visite.
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { IMG } from "../assets/images";
+import { COIFFURES } from "./coiffures";
 
-export type Inspiration = { id: string; blob: Blob; createdAt: number };
+/** Photo d'inspiration, rangée dans la case d'une coiffure (slug de src/lib/coiffures.ts). */
+export type Inspiration = {
+  id: string;
+  blob: Blob;
+  createdAt: number;
+  style: string;
+};
 
 const BASE = "daloura-photos";
 const TABLE = "photos";
 const CLE_SELFIE = "selfie";
 const CLE_INSPIRATIONS = "inspirations";
+const CLE_ESSAI = "essai";
 
 /** Taille max d'un côté après redimensionnement : assez pour l'IA, léger pour le téléphone. */
 const COTE_MAX = 1600;
@@ -37,46 +46,71 @@ async function lire<T>(cle: string): Promise<T | undefined> {
   const db = await ouvrir();
   if (!db) return memoire.get(cle) as T | undefined;
   return new Promise((resolve) => {
-    const req = db.transaction(TABLE).objectStore(TABLE).get(cle);
-    req.onsuccess = () => resolve(req.result as T | undefined);
-    req.onerror = () => resolve(memoire.get(cle) as T | undefined);
+    try {
+      const req = db.transaction(TABLE).objectStore(TABLE).get(cle);
+      req.onsuccess = () => resolve(req.result as T | undefined);
+      req.onerror = () => resolve(memoire.get(cle) as T | undefined);
+    } catch {
+      resolve(memoire.get(cle) as T | undefined);
+    }
   });
 }
 
 async function ecrire(cle: string, valeur: unknown): Promise<void> {
-  memoire.set(cle, valeur);
+  if (valeur === undefined) memoire.delete(cle);
+  else memoire.set(cle, valeur);
   const db = await ouvrir();
   if (!db) return;
   await new Promise<void>((resolve) => {
-    const tx = db.transaction(TABLE, "readwrite");
-    if (valeur === undefined) tx.objectStore(TABLE).delete(cle);
-    else tx.objectStore(TABLE).put(valeur, cle);
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => resolve();
+    try {
+      const tx = db.transaction(TABLE, "readwrite");
+      if (valeur === undefined) tx.objectStore(TABLE).delete(cle);
+      else tx.objectStore(TABLE).put(valeur, cle);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+    } catch {
+      resolve();
+    }
   });
 }
 
-// ─── Petit état partagé entre écrans ────────────────────────────────────────
+// ─── État partagé entre écrans ──────────────────────────────────────────────
 
 type Etat = {
   selfie: Blob | null;
   inspirations: Inspiration[];
+  essai: string[];
   charge: boolean;
 };
-let etat: Etat = { selfie: null, inspirations: [], charge: false };
+let etat: Etat = { selfie: null, inspirations: [], essai: [], charge: false };
 const abonnes = new Set<() => void>();
 const publier = (e: Partial<Etat>) => {
   etat = { ...etat, ...e };
   abonnes.forEach((f) => f());
 };
 
+/** Photos enregistrées avant le rangement par coiffure : chacune prend une case libre. */
+function rangerAnciennes(liste: Partial<Inspiration>[]): Inspiration[] {
+  const prises = new Set(liste.map((i) => i.style).filter(Boolean));
+  const libres = COIFFURES.map((c) => c.slug).filter((s) => !prises.has(s));
+  return liste
+    .map((i) => (i.style ? i : { ...i, style: libres.shift() }))
+    .filter((i): i is Inspiration => Boolean(i.style && i.blob && i.id));
+}
+
 let chargement: Promise<void> | null = null;
 function charger() {
   chargement ??= Promise.all([
     lire<Blob>(CLE_SELFIE),
-    lire<Inspiration[]>(CLE_INSPIRATIONS),
-  ]).then(([s, i]) =>
-    publier({ selfie: s ?? null, inspirations: i ?? [], charge: true }),
+    lire<Partial<Inspiration>[]>(CLE_INSPIRATIONS),
+    lire<string[]>(CLE_ESSAI),
+  ]).then(([s, i, e]) =>
+    publier({
+      selfie: s ?? null,
+      inspirations: rangerAnciennes(i ?? []),
+      essai: e ?? [],
+      charge: true,
+    }),
   );
   return chargement;
 }
@@ -121,7 +155,7 @@ export async function preparer(
         : await createImageBitmap(source, { imageOrientation: "from-image" });
   } catch {
     if (source instanceof Blob && source.type.startsWith("image/"))
-      return source; // format non décodable ici : on garde tel quel
+      return source; // format non décodable ici : gardé tel quel
     throw new Error("image_illisible");
   }
   const r = Math.min(1, COTE_MAX / Math.max(img.width, img.height));
@@ -158,34 +192,57 @@ export function useSelfie() {
 
 export function useInspirations() {
   const { inspirations, charge } = usePhotos();
+  const enregistrer = async (liste: Inspiration[]) => {
+    await ecrire(CLE_INSPIRATIONS, liste);
+    publier({ inspirations: liste });
+  };
   return {
     inspirations,
     charge,
-    async ajouter(fichiers: Iterable<Blob>) {
+    /** La photo d'inspiration de cette coiffure, s'il y en a une. */
+    de: (style: string) => inspirations.find((i) => i.style === style),
+    /** Met la photo dans la case de cette coiffure (remplace l'ancienne). Lève une erreur si illisible. */
+    async mettre(style: string, fichier: Blob) {
+      const blob = await preparer(fichier);
       await charger();
-      const nouvelles: Inspiration[] = [];
-      for (const f of fichiers) {
-        try {
-          nouvelles.push({
-            id: crypto.randomUUID(),
-            blob: await preparer(f),
-            createdAt: Date.now(),
-          });
-        } catch {
-          // fichier qui n'est pas une image lisible : ignoré
-        }
-      }
-      const liste = [...etat.inspirations, ...nouvelles];
-      await ecrire(CLE_INSPIRATIONS, liste);
-      publier({ inspirations: liste });
-      return nouvelles.length;
+      await enregistrer([
+        ...etat.inspirations.filter((i) => i.style !== style),
+        { id: crypto.randomUUID(), blob, createdAt: Date.now(), style },
+      ]);
     },
-    async retirer(id: string) {
-      const liste = etat.inspirations.filter((i) => i.id !== id);
-      await ecrire(CLE_INSPIRATIONS, liste);
-      publier({ inspirations: liste });
+    async retirer(style: string) {
+      await charger();
+      await enregistrer(etat.inspirations.filter((i) => i.style !== style));
+      if (etat.essai.includes(style)) {
+        const e = etat.essai.filter((s) => s !== style);
+        await ecrire(CLE_ESSAI, e);
+        publier({ essai: e });
+      }
     },
   };
+}
+
+/** Coiffures choisies pour l'essai en préparation, dans l'ordre du choix. */
+export function useEssai() {
+  const { essai, charge } = usePhotos();
+  return {
+    essai,
+    charge,
+    async choisir(styles: string[]) {
+      await ecrire(CLE_ESSAI, styles);
+      publier({ essai: styles });
+    },
+  };
+}
+
+/** Efface selfie, inspirations et essai en cours de ce navigateur (Profil). */
+export async function effacerPhotos() {
+  await Promise.all([
+    ecrire(CLE_SELFIE, undefined),
+    ecrire(CLE_INSPIRATIONS, undefined),
+    ecrire(CLE_ESSAI, undefined),
+  ]);
+  publier({ selfie: null, inspirations: [], essai: [] });
 }
 
 /** Selfie à afficher : la vraie photo si elle existe, sinon l'illustration provisoire. */

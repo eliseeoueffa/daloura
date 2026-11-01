@@ -1,9 +1,13 @@
-// Généré depuis design/maquettes/Apercu-offert.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Apercu-offert.dc.html.
+// Montre les coiffures choisies et ses vraies photos (selfie, inspirations) ; l'aperçu reste
+// l'illustration de la coiffure tant que l'IA n'est pas branchée.
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
+import { PhotoInspiration } from "../components/PhotoInspiration";
+import { useLooks } from "../lib/essai";
 
 export default function ApercuOffert() {
+  const look = useLooks()[0];
   return (
     <div className="scr">
       <div className="top">
@@ -13,17 +17,20 @@ export default function ApercuOffert() {
         </span>
         <span className="pill">Perles offertes utilisées</span>
       </div>
-      <h1 className="h1">Te voilà en knotless</h1>
+      <h1 className="h1">Te voilà en {look.nom.toLowerCase()}</h1>
       <div
         style={{ position: "relative", alignSelf: "center", width: "290px" }}
       >
         <div className="pola" style={{ transform: "rotate(-2deg)" }}>
           <span className="tape"></span>
           <div className="ph bg-cream">
-            <img src={IMG.knotless} alt="Aperçu : toi en knotless" />
+            <img
+              src={look.img}
+              alt={`Aperçu : toi en ${look.nom.toLowerCase()}`}
+            />
           </div>
           <div className="cap" style={{ fontSize: "18px" }}>
-            moi, en knotless ?
+            moi, en {look.nom.toLowerCase()} ?
           </div>
         </div>
         <span
@@ -49,7 +56,7 @@ export default function ApercuOffert() {
             transform: "rotate(8deg)",
           }}
         >
-          <img src={IMG.knotless} alt="Ton inspiration" />
+          <PhotoInspiration slug={look.slug} alt="Ton inspiration" />
         </div>
       </div>
       <div className="alert">

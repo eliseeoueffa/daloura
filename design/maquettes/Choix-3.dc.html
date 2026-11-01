@@ -35,6 +35,12 @@
        <p class="small">Ton cercle pourra voter à partir de 2 coiffures.</p>
        et « Utilise 3 perles. Il t'en restera 18. » sous le bouton. -->
 </div>
+<!-- ÉTATS DE L'ÉCRAN (faits dans src/screens/Choix3.tsx) :
+  * Grille des coiffures (src/components/GrilleCoiffures.tsx) : ses photos d'inspiration dans les cases ;
+    une case sans photo (« + ta photo ») ouvre la galerie, et la coiffure est choisie dès que la photo est ajoutée.
+  * Phrase manuscrite : « touche une coiffure ; sans photo, ta galerie s'ouvre » ou, à 3 choisies,
+    « touche une coiffure choisie pour la retirer ». Le bouton mène à Attente.
+-->
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
