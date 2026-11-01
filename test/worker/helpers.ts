@@ -11,7 +11,9 @@ export class FakeMailer implements Mailer {
     this.envoyes.push(email);
   }
   dernier(modele?: Email["modele"]) {
-    return [...this.envoyes].reverse().find((e) => !modele || e.modele === modele);
+    return [...this.envoyes]
+      .reverse()
+      .find((e) => !modele || e.modele === modele);
   }
   /** Le jeton contenu dans le lien du dernier email de ce modèle. */
   jeton(modele: Email["modele"]): string {
@@ -30,7 +32,12 @@ export function creerClient() {
     method: "GET" | "POST",
     path: string,
     body?: unknown,
-    opts: { ip?: string; origin?: string | null; sansCookie?: boolean; headers?: Record<string, string> } = {},
+    opts: {
+      ip?: string;
+      origin?: string | null;
+      sansCookie?: boolean;
+      headers?: Record<string, string>;
+    } = {},
   ) {
     const headers = new Headers(opts.headers);
     if (body !== undefined) headers.set("content-type", "application/json");
@@ -39,12 +46,23 @@ export function creerClient() {
     const cookieHeader = Object.entries(cookies)
       .map(([k, v]) => `${k}=${v}`)
       .join("; ");
-    if (cookieHeader && !opts.sansCookie && !headers.has("cookie")) headers.set("cookie", cookieHeader);
+    if (cookieHeader && !opts.sansCookie && !headers.has("cookie"))
+      headers.set("cookie", cookieHeader);
 
     const attente: Promise<unknown>[] = [];
     const res = await handleApi(
-      new Request(BASE + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) }),
-      { db: env.DB, mailer, now: () => horloge.now, appUrl: BASE, waitUntil: (p) => attente.push(p) },
+      new Request(BASE + path, {
+        method,
+        headers,
+        body: body === undefined ? undefined : JSON.stringify(body),
+      }),
+      {
+        db: env.DB,
+        mailer,
+        now: () => horloge.now,
+        appUrl: BASE,
+        waitUntil: (p) => attente.push(p),
+      },
     );
     await Promise.all(attente); // les envois d'emails sont faits après la réponse
 
@@ -57,7 +75,11 @@ export function creerClient() {
       else cookies[nom] = valeur;
     }
     const text = await res.text();
-    return { status: res.status, body: text ? JSON.parse(text) : null, headers: res.headers };
+    return {
+      status: res.status,
+      body: text ? JSON.parse(text) : null,
+      headers: res.headers,
+    };
   }
 
   return {

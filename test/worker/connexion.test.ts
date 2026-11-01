@@ -9,8 +9,11 @@ async function inscrite() {
   return c;
 }
 
-const essai = (c: ReturnType<typeof creerClient>, code: string, email = INSCRIPTION.email) =>
-  c.appeler("POST", "/api/auth/connexion", { email, code });
+const essai = (
+  c: ReturnType<typeof creerClient>,
+  code: string,
+  email = INSCRIPTION.email,
+) => c.appeler("POST", "/api/auth/connexion", { email, code });
 
 describe("POST /api/auth/connexion", () => {
   it("connecte avec le bon email et le bon code", async () => {
@@ -25,7 +28,11 @@ describe("POST /api/auth/connexion", () => {
     const c = await inscrite();
     const r = await essai(c, "1357");
     expect(r.status).toBe(401);
-    expect(r.body).toEqual({ error: "code_incorrect", essaisRestants: 4 });
+    expect(r.body).toEqual({
+      error: "code_incorrect",
+      essaisRestants: 4,
+      prochainBlocageMinutes: 2,
+    });
     expect((await essai(c, "1357")).body.essaisRestants).toBe(3);
     expect(c.cookies["__Host-daloura_session"]).toBeUndefined();
   });
@@ -39,10 +46,14 @@ describe("POST /api/auth/connexion", () => {
 
   it("bloque 2 minutes à la 5e erreur, même avec le bon code", async () => {
     const c = await inscrite();
-    for (let i = 0; i < 4; i++) expect((await essai(c, "1357")).status).toBe(401);
+    for (let i = 0; i < 4; i++)
+      expect((await essai(c, "1357")).status).toBe(401);
     const cinquieme = await essai(c, "1357");
     expect(cinquieme.status).toBe(423);
-    expect(cinquieme.body).toEqual({ error: "bloquee", jusqua: c.horloge.now + 2 * MINUTE });
+    expect(cinquieme.body).toEqual({
+      error: "bloquee",
+      jusqua: c.horloge.now + 2 * MINUTE,
+    });
 
     const pendant = await essai(c, "2468");
     expect(pendant.status).toBe(423);
@@ -61,6 +72,8 @@ describe("POST /api/auth/connexion", () => {
     };
     expect(await bloquerUneFois()).toBe(2 * MINUTE);
     c.avancer(2 * MINUTE);
+    expect((await essai(c, "1357")).body.prochainBlocageMinutes).toBe(4);
+    c.avancer(0);
     expect(await bloquerUneFois()).toBe(4 * MINUTE);
     c.avancer(4 * MINUTE);
     expect(await bloquerUneFois()).toBe(8 * MINUTE);
@@ -88,14 +101,32 @@ describe("POST /api/auth/connexion", () => {
   it("100 essais envoyés en même temps ne testent que 5 codes", async () => {
     const c = await inscrite();
     // Le bon code est dans le lot : il ne doit passer que s'il fait partie des 5 premiers réservés.
-    const codes = Array.from({ length: 100 }, (_, i) => String(1000 + i * 7).padStart(4, "0"));
-    const reponses = await Promise.all(
-      codes.map((code, i) => c.appeler("POST", "/api/auth/connexion", { email: INSCRIPTION.email, code }, { ip: `10.1.${i}.1` })),
+    const codes = Array.from({ length: 100 }, (_, i) =>
+      String(1000 + i * 7).padStart(4, "0"),
     );
-    const evalues = reponses.filter((r) => r.status === 401 || (r.status === 423 && r.body.jusqua) || r.status === 200);
-    expect(reponses.filter((r) => r.status === 401).length).toBeLessThanOrEqual(4);
+    const reponses = await Promise.all(
+      codes.map((code, i) =>
+        c.appeler(
+          "POST",
+          "/api/auth/connexion",
+          { email: INSCRIPTION.email, code },
+          { ip: `10.1.${i}.1` },
+        ),
+      ),
+    );
+    const evalues = reponses.filter(
+      (r) =>
+        r.status === 401 ||
+        (r.status === 423 && r.body.jusqua) ||
+        r.status === 200,
+    );
+    expect(reponses.filter((r) => r.status === 401).length).toBeLessThanOrEqual(
+      4,
+    );
     expect(evalues.length).toBeLessThanOrEqual(5);
-    expect(reponses.filter((r) => r.status === 423).length).toBeGreaterThanOrEqual(95);
+    expect(
+      reponses.filter((r) => r.status === 423).length,
+    ).toBeGreaterThanOrEqual(95);
   });
 
   it("limite à 30 tentatives par heure et par IP, tous emails confondus", async () => {
@@ -104,11 +135,18 @@ describe("POST /api/auth/connexion", () => {
     expect((await essai(c, "2468", "y@b.co")).status).toBe(429);
   });
 
-  it.each([{ code: "12" }, { code: 2468 }, { email: "pas-un-email" }])("refuse %o", async (champ) => {
-    const c = await inscrite();
-    const r = await c.appeler("POST", "/api/auth/connexion", { email: INSCRIPTION.email, code: "2468", ...champ });
-    expect(r.status).toBe(400);
-  });
+  it.each([{ code: "12" }, { code: 2468 }, { email: "pas-un-email" }])(
+    "refuse %o",
+    async (champ) => {
+      const c = await inscrite();
+      const r = await c.appeler("POST", "/api/auth/connexion", {
+        email: INSCRIPTION.email,
+        code: "2468",
+        ...champ,
+      });
+      expect(r.status).toBe(400);
+    },
+  );
 });
 
 describe("session", () => {
@@ -123,10 +161,16 @@ describe("session", () => {
 
   it("répond 401 sans session, et dit si un compte a déjà été ouvert sur ce téléphone", async () => {
     const c = creerClient();
-    expect((await c.appeler("GET", "/api/auth/session")).body).toEqual({ error: "non_connectee", appareilConnu: false });
+    expect((await c.appeler("GET", "/api/auth/session")).body).toEqual({
+      error: "non_connectee",
+      appareilConnu: false,
+    });
     await c.appeler("POST", "/api/auth/inscription", INSCRIPTION);
     await c.appeler("POST", "/api/auth/deconnexion", {});
-    expect((await c.appeler("GET", "/api/auth/session")).body).toEqual({ error: "non_connectee", appareilConnu: true });
+    expect((await c.appeler("GET", "/api/auth/session")).body).toEqual({
+      error: "non_connectee",
+      appareilConnu: true,
+    });
   });
 
   it("refuse un cookie de session inventé", async () => {
@@ -158,7 +202,9 @@ describe("session", () => {
     expect(r.status).toBe(204);
     expect(r.headers.getSetCookie()[0]).toMatch(/Max-Age=0/);
     // Il reste seulement la session ouverte à l'inscription (autre « téléphone »).
-    expect(await env.DB.prepare("SELECT count(*) AS n FROM sessions").first("n")).toBe(1);
+    expect(
+      await env.DB.prepare("SELECT count(*) AS n FROM sessions").first("n"),
+    ).toBe(1);
     // Même en rejouant l'ancien cookie, la session n'existe plus.
     const rejoue = await c.appeler("GET", "/api/auth/session", undefined, {
       headers: { cookie: `__Host-daloura_session=${jeton}` },
@@ -174,9 +220,17 @@ describe("session", () => {
         headers: { "content-type": "application/json" },
         body: JSON.stringify(INSCRIPTION),
       }),
-      { db: env.DB, mailer: { send: async () => {} }, now: Date.now, appUrl: "http://localhost:5173", waitUntil: () => {} },
+      {
+        db: env.DB,
+        mailer: { send: async () => {} },
+        now: Date.now,
+        appUrl: "http://localhost:5173",
+        waitUntil: () => {},
+      },
     );
-    const session = res.headers.getSetCookie().find((s) => s.startsWith("daloura_session="))!;
+    const session = res.headers
+      .getSetCookie()
+      .find((s) => s.startsWith("daloura_session="))!;
     expect(session).toBeTruthy();
     expect(session).not.toMatch(/Secure/);
   });

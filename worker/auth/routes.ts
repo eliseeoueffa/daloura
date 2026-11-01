@@ -9,7 +9,7 @@ import {
 import type { Mailer, ModeleEmail } from "../email/mailer";
 import { burnCodeCheck, hashCode, randomToken, sha256Hex, verifyCode } from "../lib/crypto";
 import { erreur, HttpError, ipDe, json, lireJson, texte } from "../lib/http";
-import { bloquer, MAX_ESSAIS, remiseAZero, reserverTentative } from "../lib/lockout";
+import { bloquer, dureeBlocage, MAX_ESSAIS, remiseAZero, reserverTentative } from "../lib/lockout";
 import { consommer, LIMITES } from "../lib/rateLimit";
 import {
   appareilConnu,
@@ -192,7 +192,11 @@ async function connexion({ request, deps }: Ctx) {
     const jusqua = await bloquer(deps.db, user.id, tentative.lock_count, now);
     return erreur("bloquee", 423, { jusqua });
   }
-  return erreur("code_incorrect", 401, { essaisRestants: MAX_ESSAIS - tentative.tentative });
+  return erreur("code_incorrect", 401, {
+    essaisRestants: MAX_ESSAIS - tentative.tentative,
+    // Pour l'écran : « Après, la connexion est bloquée N minutes. »
+    prochainBlocageMinutes: dureeBlocage(tentative.lock_count + 1) / 60_000,
+  });
 }
 
 // POST /api/auth/deconnexion

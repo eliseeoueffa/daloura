@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { hashCode, PBKDF2_ITERATIONS, randomToken, sha256Hex, verifyCode } from "../../worker/lib/crypto";
-import { BLOCAGE_BASE, BLOCAGE_MAX, dureeBlocage } from "../../worker/lib/lockout";
+import {
+  hashCode,
+  PBKDF2_ITERATIONS,
+  randomToken,
+  sha256Hex,
+  verifyCode,
+} from "../../worker/lib/crypto";
+import {
+  BLOCAGE_BASE,
+  BLOCAGE_MAX,
+  dureeBlocage,
+} from "../../worker/lib/lockout";
 
 describe("hachage du code", () => {
   it("vérifie le bon code et refuse un autre", async () => {
