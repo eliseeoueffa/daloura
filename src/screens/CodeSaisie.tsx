@@ -1,9 +1,56 @@
-// Généré depuis design/maquettes/Code-saisie.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Code-saisie.dc.html.
+// Connexion : email + code. Code faux → alerte avec les tentatives restantes (comme Code-erreur) ; 3 erreurs → Code-bloque.
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { CasesCode, LONGUEUR_CODE, PaveCode } from "../components/SaisieCode";
+import {
+  api,
+  brouillon,
+  connecte,
+  messageErreur,
+  type Compte,
+} from "../lib/compte";
+import { emailValide, normaliserEmail } from "../lib/emails";
 import { IMG } from "../assets/images";
 
 export default function CodeSaisie() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState(brouillon.email);
+  const [code, setCode] = useState("");
+  const [erreur, setErreur] = useState<string | null>(null);
+  const [restantes, setRestantes] = useState<number | null>(null);
+  const [occupe, setOccupe] = useState(false);
+
+  async function connecter(c: string) {
+    const e = normaliserEmail(email);
+    if (!emailValide(e)) {
+      setCode("");
+      return setErreur(messageErreur("email_invalide"));
+    }
+    setOccupe(true);
+    setErreur(null);
+    setRestantes(null);
+    const r = await api<Compte>("/connexion", { email: e, code: c });
+    setOccupe(false);
+    brouillon.email = e;
+    if (r.ok) {
+      connecte(r.data);
+      return navigate("/carnet", { replace: true });
+    }
+    setCode("");
+    if (r.error === "bloque")
+      return navigate(`/code-bloque?jusqua=${Number(r.jusqua) || ""}`);
+    if (r.error === "code_incorrect")
+      return setRestantes(Number(r.restantes) || 1);
+    setErreur(messageErreur(r.error));
+  }
+  const saisir = (c: string) => {
+    setCode(c);
+    setErreur(null);
+    setRestantes(null);
+    if (c.length === LONGUEUR_CODE) void connecter(c);
+  };
+
   return (
     <div className="scr" style={{ gap: "14px" }}>
       <div className="top">
@@ -35,40 +82,63 @@ export default function CodeSaisie() {
           Ton adresse email
         </label>{" "}
         <input
-          className="input"
+          className={erreur ? "input bad" : "input"}
           id="mail"
           type="email"
-          defaultValue="awa.k@gmail.com"
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          placeholder="ton.email@exemple.com"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.currentTarget.value);
+            setErreur(null);
+            setRestantes(null);
+          }}
         />
       </div>
       <p className="label">Ton code secret</p>
-      <div className="pin" aria-label="Code à 4 chiffres, 3 saisis">
-        <span className="on">•</span>
-        <span className="on">•</span>
-        <span className="on">•</span>
-        <span></span>
-      </div>
-      <Link to="/code-oublie" className="lnk" style={{ minHeight: "36px" }}>
+      <CasesCode
+        valeur={code}
+        erreur={restantes !== null}
+        libelle="Ton code secret"
+      />
+      {restantes !== null && (
+        <div className="alert err" role="alert">
+          <span className="ic">!</span>
+          <div>
+            <b>Ce code n'est pas le bon.</b>
+            {restantes > 1
+              ? `Il te reste ${restantes} tentatives.`
+              : "Il te reste 1 tentative."}{" "}
+            Après, la connexion est bloquée 15 minutes.
+          </div>
+        </div>
+      )}
+      {erreur && (
+        <div className="alert err" role="alert">
+          <span className="ic">!</span>
+          <div>{erreur}</div>
+        </div>
+      )}
+      <Link
+        to="/code-oublie"
+        className="lnk"
+        style={{ minHeight: "36px" }}
+        onClick={() => (brouillon.email = normaliserEmail(email))}
+      >
         J'ai oublié mon code
       </Link>
       <div className="grow"></div>
-      <div className="pad" aria-hidden="true">
-        <span>1</span>
-        <span>2</span>
-        <span>3</span>
-        <span>4</span>
-        <span>5</span>
-        <span>6</span>
-        <span>7</span>
-        <span>8</span>
-        <span>9</span>
-        <span style={{ background: "transparent", border: "0" }}></span>
-        <span>0</span>
-        <span style={{ fontSize: "14px" }}>Effacer</span>
-      </div>
-      <Link to="/carnet" className="btn">
+      <PaveCode valeur={code} onChange={saisir} desactive={occupe} />
+      <button
+        type="button"
+        className="btn"
+        disabled={occupe || code.length < LONGUEUR_CODE}
+        onClick={() => void connecter(code)}
+      >
         Me connecter
-      </Link>
+      </button>
     </div>
   );
 }

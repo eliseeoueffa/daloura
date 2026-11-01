@@ -1,9 +1,33 @@
-// Généré depuis design/maquettes/Connexion.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
-import { IMG } from "../assets/images";
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Connexion.dc.html.
+// Vérifie si l'email a déjà un compte : oui → Email-existant, non → choix du code (Code-nouveau).
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { PhotoInspiration } from "../components/PhotoInspiration";
+import { api, brouillon, messageErreur } from "../lib/compte";
+import { emailValide, normaliserEmail } from "../lib/emails";
+import { useLooks } from "../lib/essai";
+import { useSelfieAffiche } from "../lib/photos";
 
 export default function Connexion() {
+  const navigate = useNavigate();
+  const { selfie, selfieStyle } = useSelfieAffiche();
+  const look = useLooks()[0];
+  const [email, setEmail] = useState(brouillon.email);
+  const [erreur, setErreur] = useState<string | null>(null);
+  const [occupe, setOccupe] = useState(false);
+
+  async function continuer() {
+    const e = normaliserEmail(email);
+    if (!emailValide(e)) return setErreur(messageErreur("email_invalide"));
+    setOccupe(true);
+    const r = await api<{ existe: boolean }>("/verifier-email", { email: e });
+    setOccupe(false);
+    if (!r.ok) return setErreur(messageErreur(r.error));
+    brouillon.email = e;
+    brouillon.jeton = null;
+    navigate(r.data.existe ? "/email-existant" : "/code-nouveau");
+  }
+
   return (
     <div className="scr">
       <div className="top">
@@ -30,11 +54,11 @@ export default function Connexion() {
             boxShadow: "0 0 0 3px #FFFDF8",
           }}
         >
-          <img src={IMG.selfie} alt="" />
+          <img src={selfie} alt="" style={selfieStyle} />
         </div>
         <span style={{ fontSize: "22px", color: "#702D43" }}>+</span>
         <div className="stk rays" style={{ width: "64px", height: "70px" }}>
-          <img src={IMG.knotless} alt="" />
+          <PhotoInspiration slug={look.slug} alt="" />
         </div>
         <span className="hand" style={{ fontSize: "18px" }}>
           presque !
@@ -47,20 +71,40 @@ export default function Connexion() {
           Ton adresse email
         </label>{" "}
         <input
-          className="input"
+          className={erreur ? "input bad" : "input"}
           id="mail"
           type="email"
-          defaultValue="awa.k@gmail.com"
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          placeholder="ton.email@exemple.com"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.currentTarget.value);
+            setErreur(null);
+          }}
+          onKeyDown={(e) => e.key === "Enter" && void continuer()}
         />
       </div>
       <p className="small">
         Pas de mot de passe : tu choisis un code secret à 4 chiffres à l'étape
         suivante.
       </p>
+      {erreur && (
+        <div className="alert err" role="alert">
+          <span className="ic">!</span>
+          <div>{erreur}</div>
+        </div>
+      )}
       <div className="grow"></div>
-      <Link to="/code-nouveau" className="btn">
+      <button
+        type="button"
+        className="btn"
+        onClick={continuer}
+        disabled={occupe}
+      >
         Continuer
-      </Link>
+      </button>
     </div>
   );
 }

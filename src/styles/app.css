@@ -751,3 +751,26 @@ button:disabled {
   white-space: nowrap;
   z-index: 2;
 }
+/* Pavé du code secret : vraies touches */
+.pad button {
+  min-height: 52px;
+  border-radius: 10px;
+  background: #fffbf4;
+  border: 1px solid rgba(73, 51, 47, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #49332f;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.pad button:active {
+  background: #f3dde1;
+}
+.pin.err span {
+  border: 2px solid #a1262e;
+  color: #a1262e;
+}

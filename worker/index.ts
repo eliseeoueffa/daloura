@@ -1,11 +1,15 @@
 // API de Daloura (Cloudflare Worker). Les fichiers de l'appli sont servis par le binding ASSETS ;
 // le Worker ne répond qu'aux routes /api/* (voir run_worker_first dans wrangler.jsonc).
+import { routeComptes } from "./comptes";
 import { routePhotos } from "./photos";
 
 export interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
   MEDIA: R2Bucket;
+  MAKISEND_URL: string;
+  /** Secret du Worker (Cloudflare → daloura → Paramètres → Variables et secrets). */
+  MAKISEND_API_KEY?: string;
 }
 
 const json = (data: unknown, status = 200) =>
@@ -27,6 +31,9 @@ export default {
         { ok, service: "daloura", version: "0.1.0", db, media },
         ok ? 200 : 503,
       );
+    }
+    if (url.pathname.startsWith("/api/compte/")) {
+      return routeComptes(request, env, url.pathname.slice("/api/compte".length));
     }
     if (
       url.pathname === "/api/photos" ||

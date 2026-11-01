@@ -1,8 +1,31 @@
-// Généré depuis design/maquettes/Code-nouveau.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Code-nouveau.dc.html.
+// Choix du code : à l'inscription (après Connexion) ou depuis le lien « code oublié » (?jeton=…).
+import { useEffect, useState } from "react";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
+import { CasesCode, LONGUEUR_CODE, PaveCode } from "../components/SaisieCode";
+import { brouillon } from "../lib/compte";
 
 export default function CodeNouveau() {
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const jeton = params.get("jeton");
+  if (jeton) brouillon.jeton = jeton;
+  const [code, setCode] = useState("");
+  useEffect(() => {
+    brouillon.code = "";
+  }, []);
+  const valider = (c: string) => {
+    brouillon.code = c;
+    navigate("/code-confirmation");
+  };
+  const saisir = (c: string) => {
+    setCode(c);
+    if (c.length === LONGUEUR_CODE) valider(c);
+  };
+  // Arrivée directe sans email ni lien (page rechargée) : on repart de l'email.
+  if (!brouillon.email && !brouillon.jeton)
+    return <Navigate to="/connexion" replace />;
+
   return (
     <div className="scr">
       <div className="top">
@@ -25,33 +48,20 @@ export default function CodeNouveau() {
         4 chiffres. Tu le taperas à chaque connexion. Il protège tes selfies et
         ton carnet.
       </p>
-      <div className="pin" aria-label="Code à 4 chiffres, 2 saisis">
-        <span className="on">•</span>
-        <span className="on">•</span>
-        <span></span>
-        <span></span>
-      </div>
+      <CasesCode valeur={code} libelle="Ton nouveau code" />
       <span className="hand" style={{ fontSize: "18px" }}>
         évite 0000, 1234 ou ta date de naissance
       </span>
       <div className="grow"></div>
-      <div className="pad" aria-hidden="true">
-        <span>1</span>
-        <span>2</span>
-        <span>3</span>
-        <span>4</span>
-        <span>5</span>
-        <span>6</span>
-        <span>7</span>
-        <span>8</span>
-        <span>9</span>
-        <span style={{ background: "transparent", border: "0" }}></span>
-        <span>0</span>
-        <span style={{ fontSize: "14px" }}>Effacer</span>
-      </div>
-      <Link to="/code-confirmation" className="btn">
+      <PaveCode valeur={code} onChange={saisir} />
+      <button
+        type="button"
+        className="btn"
+        disabled={code.length < LONGUEUR_CODE}
+        onClick={() => valider(code)}
+      >
         Continuer
-      </Link>
+      </button>
     </div>
   );
 }

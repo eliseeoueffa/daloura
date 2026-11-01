@@ -10,12 +10,14 @@ import {
   formatCoiffures,
   generationsDe,
 } from "../lib/perles";
+import { useCompte } from "../lib/compte";
 import { useEssai, useInspirations, useSelfieAffiche } from "../lib/photos";
 
 const MAX = generationsDe(PERLES_BIENVENUE); // 3 perles offertes = 1 coiffure
 
 export default function ChoixEssai() {
   const navigate = useNavigate();
+  const { compte } = useCompte();
   const { selfie, selfieStyle } = useSelfieAffiche();
   const { de } = useInspirations();
   const { essai, charge, choisir } = useEssai();
@@ -90,7 +92,7 @@ export default function ChoixEssai() {
         disabled={!pret}
         onClick={async () => {
           await choisir(choix);
-          navigate("/connexion");
+          navigate(compte ? "/consentement" : "/connexion");
         }}
       >
         Voir mon aperçu

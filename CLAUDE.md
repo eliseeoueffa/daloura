@@ -17,6 +17,21 @@ PWA mobile (React + Vite + TypeScript) servie par un Cloudflare Worker (`worker/
   maquette (`design/maquettes/*.dc.html`) mise à jour en même temps.
 - Les clés (MakiSend, Itaja…) vont dans les secrets du Worker, jamais dans le code.
 
+## Comptes
+
+- `worker/comptes.ts` (routes `/api/compte/*`, tests `worker/test/comptes.test.ts`) et `src/lib/compte.ts` côté appli.
+- Email + code secret à 4 chiffres, haché en PBKDF2-SHA256 (100 000 itérations, sel). 3 codes faux de suite :
+  connexion bloquée 15 minutes. Session : cookie `__Host-daloura` HttpOnly/Secure/SameSite=Lax de 90 jours,
+  seule l'empreinte SHA-256 du jeton est en base. Les requêtes POST doivent être en JSON.
+- Code oublié : lien par email via **MakiSend** (`MAKISEND_URL` dans `wrangler.jsonc`, clé dans le secret
+  `MAKISEND_API_KEY` du Worker), valable 30 minutes, une seule fois, 3 envois par heure ; le nouveau code ferme
+  toutes les anciennes sessions.
+- À l'inscription : 3 perles offertes (une fois par compte et par téléphone, `offrirBienvenue`).
+- Le parcours en cours (email, premier code, jeton du lien) reste en mémoire (`brouillon`), jamais sur le téléphone.
+- `useSolde()` renvoie le vrai solde quand elle est connectée.
+- Les écrans sont chargés à la demande : dans les tests Playwright, attendre que l'écran suivant soit affiché
+  avant de taper (sinon les touches arrivent sur l'écran précédent).
+
 ## Offres
 
 Daloura n'a pas d'abonnement. La monnaie est la **perle** (comme les perles dorées des tresses) :

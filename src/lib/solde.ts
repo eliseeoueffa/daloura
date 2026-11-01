@@ -1,7 +1,7 @@
 // Solde de perles affiché par les écrans.
-// PROVISOIRE : tant que les comptes (étape 2) ne sont pas branchés, les écrans montrent des
-// fausses données cohérentes entre elles, calculées depuis perles.ts (rien en dur ici).
-// Quand l'API existera, useSolde() lira GET /api/perles et ce fichier sera le seul à changer.
+// Connectée : son vrai solde (GET /api/compte/moi). Sans compte (relecture des écrans via /ecrans) :
+// des fausses données cohérentes entre elles, calculées depuis perles.ts (rien en dur ici).
+import { useCompte } from "./compte";
 import {
   MAX_COIFFURES,
   SACHETS,
@@ -28,5 +28,6 @@ export const SOLDE_EXEMPLE = {
 export type MomentSolde = keyof typeof SOLDE_EXEMPLE;
 
 export function useSolde(moment: MomentSolde): number {
-  return SOLDE_EXEMPLE[moment];
+  const { compte } = useCompte();
+  return compte ? compte.perles : SOLDE_EXEMPLE[moment];
 }

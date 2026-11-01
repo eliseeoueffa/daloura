@@ -10,6 +10,8 @@
     "run_worker_first": ["/api/*"]
   },
   "observability": { "enabled": true },
+  // Envoi des emails (code oublié) par MakiSend. La clé va dans les secrets : MAKISEND_API_KEY.
+  "vars": { "MAKISEND_URL": "https://makisend.elisee.workers.dev" },
   // Base D1 : schéma dans migrations/ (npm run db:migrate:local / db:migrate:remote).
   "d1_databases": [
     {

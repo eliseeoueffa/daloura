@@ -1,9 +1,25 @@
-// Généré depuis design/maquettes/Code-mail-envoye.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Code-mail-envoye.dc.html.
+// Confirme l'envoi du lien ; « Renvoyer le lien » le redemande (3 par heure au maximum).
+import { useState } from "react";
+import { Link, Navigate } from "react-router";
+import { api, brouillon, messageErreur } from "../lib/compte";
 import { IMG } from "../assets/images";
 
 export default function CodeMailEnvoye() {
+  const [message, setMessage] = useState<string | null>(null);
+  const [occupe, setOccupe] = useState(false);
+  async function renvoyer() {
+    setOccupe(true);
+    const r = await api("/code-oublie", { email: brouillon.email });
+    setOccupe(false);
+    setMessage(
+      r.ok
+        ? "C'est renvoyé. Regarde aussi dans les spams."
+        : messageErreur(r.error),
+    );
+  }
+  if (!brouillon.email) return <Navigate to="/code-oublie" replace />;
+
   return (
     <div className="scr">
       <div className="top">
@@ -78,19 +94,29 @@ export default function CodeMailEnvoye() {
         Regarde tes mails
       </h1>
       <p className="p" style={{ textAlign: "center" }}>
-        On a envoyé un lien à <b>awa.k@gmail.com</b>. Ouvre-le sur ce téléphone
-        pour choisir ton nouveau code.
+        On a envoyé un lien à <b>{brouillon.email}</b>. Ouvre-le sur ce
+        téléphone pour choisir ton nouveau code.
       </p>
       <p className="small" style={{ textAlign: "center" }}>
         Rien reçu après quelques minutes ? Regarde dans les spams ou les
         promotions.
       </p>
       <div className="grow"></div>
-      <Link to="/code-mail-envoye" className="btn2">
+      {message && (
+        <p className="small" style={{ textAlign: "center" }} role="status">
+          {message}
+        </p>
+      )}
+      <button
+        type="button"
+        className="btn2"
+        onClick={renvoyer}
+        disabled={occupe}
+      >
         Renvoyer le lien
-      </Link>{" "}
-      <Link to="/code-nouveau" className="lnk">
-        J'ai ouvert le lien (démo)
+      </button>
+      <Link to="/code-saisie" className="lnk">
+        Revenir à la connexion
       </Link>
     </div>
   );
