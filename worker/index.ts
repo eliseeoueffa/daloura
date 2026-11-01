@@ -1,8 +1,11 @@
 // API de Daloura (Cloudflare Worker). Les fichiers de l'appli sont servis par le binding ASSETS ;
 // le Worker ne répond qu'aux routes /api/* (voir run_worker_first dans wrangler.jsonc).
+import { routePhotos } from "./photos";
+
 export interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
+  MEDIA: R2Bucket;
 }
 
 const json = (data: unknown, status = 200) =>
@@ -16,7 +19,24 @@ export default {
         .first<{ n: number }>()
         .then((r) => (r ? "ok" : "vide"))
         .catch(() => "indisponible");
-      return json({ ok: db === "ok", service: "daloura", version: "0.1.0", db }, db === "ok" ? 200 : 503);
+      const media = await env.MEDIA.head("sante")
+        .then(() => "ok")
+        .catch(() => "indisponible");
+      const ok = db === "ok" && media === "ok";
+      return json(
+        { ok, service: "daloura", version: "0.1.0", db, media },
+        ok ? 200 : 503,
+      );
+    }
+    if (
+      url.pathname === "/api/photos" ||
+      url.pathname.startsWith("/api/photos/")
+    ) {
+      return routePhotos(
+        request,
+        env,
+        url.pathname.slice("/api/photos".length),
+      );
     }
     if (url.pathname.startsWith("/api/")) {
       return json({ error: "not_found" }, 404);

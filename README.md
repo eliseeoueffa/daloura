@@ -7,7 +7,8 @@ Web app mobile (PWA) : vois une coiffure sur ton visage avant d'aller au salon, 
 - **Front** : React + Vite + TypeScript, PWA installable (`vite-plugin-pwa`).
 - **API** : Cloudflare Worker (`worker/index.ts`), qui sert aussi les fichiers de l'appli.
 - **Base** : Cloudflare D1 `daloura` (binding `DB`), schéma dans `migrations/`.
-- **À venir** : R2 (photos), Queues (aperçus), MakiSend (emails), Itaja (paiement), Three.js (Hair Recap seulement).
+- **Photos** : Cloudflare R2, bucket privé `daloura-media` (binding `MEDIA`).
+- **À venir** : Queues (aperçus), MakiSend (emails), Itaja (paiement), Three.js (Hair Recap seulement).
 
 ## Lancer en local
 
@@ -45,6 +46,8 @@ de la séance et les stickers peints.
 1. Cloudflare → **Workers & Pages** → **Créer** → **Importer un dépôt** → `daloura`.
 2. Commande de build : `npm run build` · Commande de déploiement : `npx wrangler deploy`.
 3. Chaque push sur `main` redéploie l'appli.
+4. R2 (une seule fois) : Cloudflare → **R2** → activer R2 si demandé → **Créer un bucket** nommé `daloura-media`
+   (emplacement : Europe de l'Ouest si proposé, accès public désactivé). `/api/health` doit répondre `"media":"ok"`.
 
 Les clés (MakiSend, Itaja…) se mettent dans les **réglages du Worker** (variables secrètes), jamais dans le code.
 

@@ -76,5 +76,11 @@ My Hair Recap, payé en perles sans Itaja : 3 mois = 20, 6 mois = 40, 12 mois = 
 - Prendre une photo : sur écran tactile, l'appareil photo du système (`<input capture="user">`) ; sur ordinateur,
   la webcam dans la page (`getUserMedia`), avec un message clair si l'accès est refusé.
 - `<ChoixFichier>` (`src/components/ChoixFichier.tsx`) ouvre la galerie ou l'appareil photo.
+- **Envoi vers R2** (`src/lib/envoi.ts` → `worker/photos.ts`, binding `MEDIA`, bucket privé `daloura-media`) :
+  seulement après l'accord sur l'écran Consentement. Le téléphone fait foi : à chaque changement, au démarrage
+  et au retour du réseau, on envoie ce qui manque et on efface ce qui a été retiré (réessais espacés si échec).
+  En attendant les comptes, un identifiant aléatoire d'appareil (128 bits, `localStorage`) sert de clé :
+  photos rangées sous `appareils/<sha256(id)>/selfie.jpg` et `…/inspirations/<coiffure>.jpg`. Le Worker vérifie
+  les octets (JPEG, PNG, WebP), la taille (5 Mo max) et la coiffure (table `styles`). Tests : `worker/test/photos.test.ts`.
 - La caméra exige HTTPS (ou `localhost`) : en local sur téléphone via l'IP de l'ordinateur, elle ne s'ouvre pas,
   utiliser le lien Cloudflare.

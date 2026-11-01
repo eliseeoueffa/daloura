@@ -18,6 +18,7 @@
       "database_id": "4d6f8eb5-bf7b-449d-9440-09593d870d2b",
       "migrations_dir": "migrations"
     }
-  ]
-  // Étape 3 : bucket R2 "daloura-media" (binding MEDIA).
+  ],
+  // Photos (selfies, inspirations) : bucket R2 privé, à créer une fois dans le tableau de bord Cloudflare.
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "daloura-media" }]
 }

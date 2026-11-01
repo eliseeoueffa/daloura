@@ -32,6 +32,9 @@
   <a class="btn" href="Notifications.dc.html">Créer mon aperçu</a>
   <a class="lnk" href="Consentement.dc.html">Lire la politique de confidentialité</a>
 </div>
+<!-- Fait dans src/screens/Consentement.tsx : la case n'est PAS cochée d'avance (un accord pré-coché n'est pas un vrai
+     consentement) ; « Créer mon aperçu » reste désactivé tant qu'elle n'est pas cochée. Une fois l'accord donné,
+     le selfie et les inspirations partent vers le serveur (R2). Le polaroïd montre son vrai selfie. -->
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {

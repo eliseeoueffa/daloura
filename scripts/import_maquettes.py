@@ -46,6 +46,7 @@ MANUELS = {
     "Carnet",
     "Choix-3",
     "Choix-essai",
+    "Consentement",
     "Echec-creation",
     "Offres",
     "Paiement",

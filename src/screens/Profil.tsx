@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
 import { Perle } from "../components/Perle";
+import { effacerDuServeur } from "../lib/envoi";
 import { effacerPhotos, useSelfieAffiche } from "../lib/photos";
 import { useSolde } from "../lib/solde";
 
@@ -182,10 +183,10 @@ export default function Profil() {
           onClick={async () => {
             if (
               window.confirm(
-                "Supprimer ton selfie, tes inspirations et tes aperçus de ce téléphone ? C'est définitif.",
+                "Supprimer ton selfie, tes inspirations et tes aperçus, sur ce téléphone et sur nos serveurs ? C'est définitif.",
               )
             ) {
-              await effacerPhotos();
+              await Promise.all([effacerPhotos(), effacerDuServeur()]);
               setEfface(true);
             }
           }}

@@ -19,6 +19,7 @@ const TABLE = "photos";
 const CLE_SELFIE = "selfie";
 const CLE_INSPIRATIONS = "inspirations";
 const CLE_ESSAI = "essai";
+const CLE_CONSENTEMENT = "consentement";
 
 /** Taille max d'un côté après redimensionnement : assez pour l'IA, léger pour le téléphone. */
 const COTE_MAX = 1600;
@@ -80,14 +81,29 @@ type Etat = {
   selfie: Blob | null;
   inspirations: Inspiration[];
   essai: string[];
+  /** Date de l'accord donné sur l'écran Consentement : sans lui, aucune photo ne quitte le téléphone. */
+  consentement: number | null;
   charge: boolean;
 };
-let etat: Etat = { selfie: null, inspirations: [], essai: [], charge: false };
+let etat: Etat = {
+  selfie: null,
+  inspirations: [],
+  essai: [],
+  consentement: null,
+  charge: false,
+};
 const abonnes = new Set<() => void>();
 const publier = (e: Partial<Etat>) => {
   etat = { ...etat, ...e };
   abonnes.forEach((f) => f());
 };
+
+/** Lecture de l'état hors React (envoi vers R2, src/lib/envoi.ts). */
+export const etatPhotos = () => etat;
+export function surChangement(f: () => void): () => void {
+  abonnes.add(f);
+  return () => abonnes.delete(f);
+}
 
 /** Photos enregistrées avant le rangement par coiffure : chacune prend une case libre. */
 function rangerAnciennes(liste: Partial<Inspiration>[]): Inspiration[] {
@@ -104,11 +120,13 @@ function charger() {
     lire<Blob>(CLE_SELFIE),
     lire<Partial<Inspiration>[]>(CLE_INSPIRATIONS),
     lire<string[]>(CLE_ESSAI),
-  ]).then(([s, i, e]) =>
+    lire<number>(CLE_CONSENTEMENT),
+  ]).then(([s, i, e, c]) =>
     publier({
       selfie: s ?? null,
       inspirations: rangerAnciennes(i ?? []),
       essai: e ?? [],
+      consentement: c ?? null,
       charge: true,
     }),
   );
@@ -234,6 +252,22 @@ export function useEssai() {
     },
   };
 }
+
+/** Accord donné sur l'écran Consentement : autorise l'envoi des photos vers le serveur. */
+export function useConsentement() {
+  const { consentement, charge } = usePhotos();
+  return {
+    consentement,
+    charge,
+    async donner() {
+      const quand = Date.now();
+      await ecrire(CLE_CONSENTEMENT, quand);
+      publier({ consentement: quand });
+    },
+  };
+}
+
+export { charger as chargerPhotos };
 
 /** Efface selfie, inspirations et essai en cours de ce navigateur (Profil). */
 export async function effacerPhotos() {
