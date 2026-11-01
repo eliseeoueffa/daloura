@@ -1,7 +1,10 @@
-// Généré depuis design/maquettes/Sans-essai.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Sans-essai.dc.html.
+// Chiffres : src/lib/perles.ts. Solde : src/lib/solde.ts.
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
+import { Perles } from "../components/Perle";
+import { COUT_GENERATION } from "../lib/perles";
+import { useSolde } from "../lib/solde";
 
 export default function SansEssai() {
   return (
@@ -20,7 +23,9 @@ export default function SansEssai() {
           </svg>
           Carnet
         </Link>
-        <span className="pill">0 essai</span>
+        <span className="pill">
+          <Perles n={useSolde("vide")} />
+        </span>
       </div>
       <div className="grow"></div>
       <div
@@ -75,9 +80,12 @@ export default function SansEssai() {
         </div>
       </div>
       <h1 className="h1" style={{ textAlign: "center" }}>
-        Tu as utilisé tous tes essais
+        Plus de perles
       </h1>
       <p className="p" style={{ textAlign: "center" }}>
+        Il te faut <Perles n={COUT_GENERATION} /> pour générer une coiffure.
+      </p>
+      <p className="small" style={{ textAlign: "center" }}>
         Recharge pour essayer tes prochaines coiffures et faire voter ton
         cercle.
       </p>

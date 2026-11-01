@@ -38,7 +38,7 @@ export default function EmailExistant() {
         <span className="ic">!</span>
         <div>
           <b>Cet email a déjà un compte Daloura.</b>Connecte-toi avec ton code
-          secret. L'essai offert a déjà été utilisé sur ce compte.
+          secret. Les perles offertes ont déjà servi sur ce compte.
         </div>
       </div>
       <div className="grow"></div>

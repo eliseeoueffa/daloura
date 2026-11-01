@@ -1,9 +1,13 @@
-// Généré depuis design/maquettes/Paiement-reussi.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Paiement-reussi.dc.html.
+// Sachets et prix : src/lib/perles.ts. Solde : src/lib/solde.ts.
+import { Perles } from "../components/Perle";
+import { SACHET_CONSEILLE, sachet } from "../lib/perles";
+import { useSolde } from "../lib/solde";
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
 
 export default function PaiementReussi() {
+  const achat = sachet(SACHET_CONSEILLE)!.perles; // provisoire : le sachet payé viendra de l'API
   return (
     <div className="scr wine">
       <div className="top">
@@ -62,15 +66,14 @@ export default function PaiementReussi() {
         </div>
       </div>
       <h1 className="h1" style={{ textAlign: "center" }}>
-        C'est payé : tu as 3 essais
+        C'est payé : <Perles n={achat} signe />
       </h1>
       <p className="p" style={{ textAlign: "center" }}>
-        Choisis 3 coiffures dans ta bibliothèque. Ton cercle pourra voter juste
-        après.
+        Tu as maintenant <Perles n={useSolde("apresAchat")} />.
       </p>
       <div className="grow"></div>
       <Link to="/choix-3" className="btn cream">
-        Choisir mes 3 coiffures
+        Choisir mes coiffures
       </Link>
       <p className="small" style={{ textAlign: "center" }}>
         Un reçu t'a été envoyé à awa.k@gmail.com.

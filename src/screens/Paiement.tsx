@@ -1,8 +1,18 @@
-// Généré depuis design/maquettes/Paiement.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Paiement.dc.html.
+// Sachets et prix : src/lib/perles.ts. Solde : src/lib/solde.ts.
+import { Link, useSearchParams } from "react-router";
+import { Perles } from "../components/Perle";
+import {
+  formatCoiffures,
+  SACHET_CONSEILLE,
+  formatXof,
+  generationsDe,
+  sachet,
+} from "../lib/perles";
 
 export default function Paiement() {
+  const [params] = useSearchParams();
+  const s = sachet(params.get("sachet") ?? "") ?? sachet(SACHET_CONSEILLE)!;
   return (
     <div className="scr">
       <div className="top">
@@ -22,37 +32,19 @@ export default function Paiement() {
       </div>
       <h1 className="h1">Ton récapitulatif</h1>
       <p className="small">L'offre que tu as choisie :</p>
-      <div
-        className="card on"
-        style={{ position: "relative", marginTop: "6px", paddingTop: "18px" }}
-      >
-        <span
-          className="pill sign"
-          style={{
-            position: "absolute",
-            top: "-13px",
-            left: "14px",
-            minHeight: "26px",
-            padding: "0 10px",
-          }}
-        >
-          9 coiffures
-        </span>
-        <div className="row" style={{ justifyContent: "space-between" }}>
-          <p className="h2">My Hair Era</p>
-          <p className="h2" style={{ color: "#702D43", whiteSpace: "nowrap" }}>
-            2 500 F
-          </p>
-        </div>
+      <div className="card on">
+        <p className="h2">
+          {s.nom} · <Perles n={s.perles} /> · {formatXof(s.prixXof)}
+        </p>
         <p className="small">
-          3 essais de 3 coiffures, à utiliser quand tu veux.
+          {formatCoiffures(generationsDe(s.perles))} à générer quand tu veux.
         </p>
       </div>
       <div className="card" style={{ gap: "10px" }}>
         <div className="row" style={{ justifyContent: "space-between" }}>
           <p className="h2">Total</p>
           <p className="h2" style={{ color: "#702D43" }}>
-            2 500 F
+            {formatXof(s.prixXof)}
           </p>
         </div>
         <p className="small">Compte : awa.k@gmail.com</p>
@@ -91,7 +83,7 @@ export default function Paiement() {
       <span className="hand">tu reviens ici juste après</span>
       <div className="grow"></div>
       <Link to="/paiement-externe" className="btn">
-        Payer 2 500 F
+        Payer {formatXof(s.prixXof)}
       </Link>
       <p className="small" style={{ textAlign: "center" }}>
         Daloura ne voit jamais tes informations de paiement.

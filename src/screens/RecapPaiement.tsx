@@ -1,9 +1,21 @@
-// Généré depuis design/maquettes/Recap-paiement.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Recap-paiement.dc.html.
+// Prix des recaps : src/lib/perles.ts. Solde : src/lib/solde.ts.
+import { Link, useSearchParams } from "react-router";
+import { Perle, Perles } from "../components/Perle";
+import { RECAPS, coutRecap } from "../lib/perles";
+import { useSolde } from "../lib/solde";
 import { IMG } from "../assets/images";
 
 export default function RecapPaiement() {
+  const [params] = useSearchParams();
+  const mois =
+    RECAPS.find((r) => r.mois === Number(params.get("mois")))?.mois ?? 6;
+  const cout = coutRecap(mois)!;
+  // Provisoire : ?solde=bas montre l'état « solde insuffisant » dans /ecrans.
+  const solde = useSolde(
+    params.get("solde") === "bas" ? "recapInsuffisant" : "recapSuffisant",
+  );
+  const assez = solde >= cout;
   return (
     <div className="scr">
       <div className="top">
@@ -20,6 +32,9 @@ export default function RecapPaiement() {
           </svg>
           Carnet
         </Link>
+        <span className="pill">
+          <Perles n={solde} />
+        </span>
       </div>
       <h1 className="h1">Ton récapitulatif</h1>
       <p className="small">L'offre que tu as choisie :</p>
@@ -48,7 +63,7 @@ export default function RecapPaiement() {
             color: "#F5EFE6",
           }}
         >
-          6 mois
+          {mois} mois
         </span>
         <div className="row" style={{ justifyContent: "space-between" }}>
           <p
@@ -63,7 +78,7 @@ export default function RecapPaiement() {
             My Hair Recap
           </p>
           <p className="h2" style={{ whiteSpace: "nowrap" }}>
-            2 000 F
+            <Perles n={cout} />
           </p>
         </div>
         <p style={{ margin: "0", fontSize: "14px" }}>
@@ -117,28 +132,41 @@ export default function RecapPaiement() {
           </span>
         </div>
       </div>
-      <div className="card" style={{ gap: "10px" }}>
-        <div className="row" style={{ justifyContent: "space-between" }}>
-          <p className="h2">Total</p>
-          <p className="h2" style={{ color: "#702D43" }}>
-            2 000 F
-          </p>
-        </div>
-        <p className="small">Compte : awa.k@gmail.com</p>
-      </div>
-      <div
-        className="card"
-        style={{ background: "#F3DDE1", border: "0", gap: "6px" }}
-      >
-        <p className="label">Paiement sécurisé par Itaja</p>
-        <p className="small" style={{ color: "#49332F" }}>
-          Mobile Money, carte bancaire ou autre moyen, selon ton pays.
-        </p>
-      </div>
-      <div className="grow"></div>
-      <Link to="/paiement-externe" className="btn">
-        Payer 2 000 F
-      </Link>{" "}
+      {assez ? (
+        <>
+          <div className="card" style={{ gap: "6px" }}>
+            <p className="p">
+              Ton recap de {mois} mois : <Perles n={cout} />. Il t'en restera{" "}
+              <Perle />
+              {solde - cout}.
+            </p>
+            <p className="small">
+              Payé avec tes perles, sans nouveau paiement.
+            </p>
+          </div>
+          <div className="grow"></div>
+          <Link to="/recap" className="btn">
+            Créer mon recap
+          </Link>
+        </>
+      ) : (
+        <>
+          <div className="alert err">
+            <span className="ic">!</span>
+            <div>
+              <b>
+                Il te manque <Perles n={cout - solde} />
+              </b>
+              Ton recap de {mois} mois coûte <Perles n={cout} />. Recharge pour
+              le créer.
+            </div>
+          </div>
+          <div className="grow"></div>
+          <Link to="/recharger" className="btn">
+            Recharger mes perles
+          </Link>
+        </>
+      )}
       <Link to="/carnet" className="lnk">
         Choisir une autre période
       </Link>

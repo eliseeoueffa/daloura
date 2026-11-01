@@ -1,7 +1,13 @@
-// Généré depuis design/maquettes/Choix-essai.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Choix-essai.dc.html.
+// Chiffres : src/lib/perles.ts. Solde : src/lib/solde.ts.
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
+import { Perles } from "../components/Perle";
+import {
+  PERLES_BIENVENUE,
+  formatCoiffures,
+  generationsDe,
+} from "../lib/perles";
 
 export default function ChoixEssai() {
   return (
@@ -20,7 +26,9 @@ export default function ChoixEssai() {
           </svg>
           Retour
         </Link>
-        <span className="pill sign">Essai offert</span>
+        <span className="pill sign">
+          <Perles n={PERLES_BIENVENUE} /> offertes
+        </span>
       </div>
       <div className="row">
         <div
@@ -41,7 +49,8 @@ export default function ChoixEssai() {
             Choisis 1 coiffure
           </h1>
           <p className="small">
-            Ton essai offert montre 1 aperçu sur ton visage.
+            Tes <Perles n={PERLES_BIENVENUE} /> offertes montrent{" "}
+            {formatCoiffures(generationsDe(PERLES_BIENVENUE))} sur ton visage.
           </p>
         </div>
       </div>

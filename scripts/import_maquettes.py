@@ -33,6 +33,25 @@ BLOBS = {
     "21cdbea27871cc142d05e37334af6bd5": "raies",
 }
 
+# Écrans modifiés à la main (rendus dynamiques) : le script ne les régénère plus, pour ne pas
+# les écraser. Ils restent dans registry.ts. Leur maquette reste la référence visuelle :
+# reporter à la main dans le .tsx toute modification de la maquette.
+MANUELS = {
+    "Apercus",
+    "Carnet",
+    "Choix-3",
+    "Choix-essai",
+    "Echec-creation",
+    "Offres",
+    "Paiement",
+    "Paiement-attente",
+    "Paiement-reussi",
+    "Profil",
+    "Recap-paiement",
+    "Recharger",
+    "Sans-essai",
+}
+
 NUMERIC = {"maxLength", "aria-valuenow", "aria-valuemin", "aria-valuemax", "tabIndex", "rows", "cols"}
 VOID = {"img", "input", "br", "hr", "meta", "link", "source"}
 
@@ -236,11 +255,15 @@ def main() -> None:
     stems = {f.stem.replace(".dc", "") for f in files}
     files_by_stem = {f.name.replace(".dc.html", ""): f for f in files}
     stems = set(files_by_stem)
+    inconnus = MANUELS - stems
+    if inconnus:
+        raise SystemExit(f"MANUELS cite des maquettes introuvables : {sorted(inconnus)}")
     OUT.mkdir(parents=True, exist_ok=True)
     entries = []
     for stem, f in sorted(files_by_stem.items()):
         src, conv = convert(f, stems)
-        (OUT / f"{comp_of(stem)}.tsx").write_text(src, encoding="utf-8")
+        if stem not in MANUELS:
+            (OUT / f"{comp_of(stem)}.tsx").write_text(src, encoding="utf-8")
         entries.append((stem, conv.title.strip()))
     reg = [
         "// Généré par scripts/import_maquettes.py : liste des écrans et de leurs routes.",
@@ -257,7 +280,7 @@ def main() -> None:
         )
     reg.append("];")
     (OUT / "registry.ts").write_text("\n".join(reg) + "\n", encoding="utf-8")
-    print(f"{len(entries)} écrans générés dans {OUT.relative_to(ROOT)}")
+    print(f"{len(entries) - len(MANUELS)} écrans générés dans {OUT.relative_to(ROOT)} ({len(MANUELS)} faits à la main, ignorés)")
 
 
 if __name__ == "__main__":

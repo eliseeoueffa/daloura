@@ -1,9 +1,45 @@
-// Généré depuis design/maquettes/Choix-3.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Choix-3.dc.html.
+// Le coût suit le nombre de coiffures choisies (src/lib/perles.ts). Solde : src/lib/solde.ts.
+import { useState } from "react";
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
+import { Perle, Perles } from "../components/Perle";
+import {
+  COUT_GENERATION,
+  MAX_COIFFURES,
+  MIN_COIFFURES_VOTE,
+  coutEssai,
+  voteAutorise,
+} from "../lib/perles";
+import { useSolde } from "../lib/solde";
+
+const COIFFURES = [
+  { slug: "fulani", nom: "Fulani", img: IMG.fulani },
+  { slug: "bantu-knots", nom: "Bantu knots", img: IMG.knots },
+  { slug: "knotless", nom: "Knotless", img: IMG.knotless },
+  { slug: "perruque", nom: "Perruque", img: IMG.perruque },
+  { slug: "cheveux-naturels", nom: "Cheveux naturels", img: IMG.afro },
+  { slug: "locks", nom: "Locks", img: IMG.locs },
+];
 
 export default function Choix3() {
+  const solde = useSolde("avantEssai");
+  const [choix, setChoix] = useState<string[]>(
+    COIFFURES.slice(0, MAX_COIFFURES).map((c) => c.slug),
+  );
+  const n = choix.length;
+  const cout = n > 0 ? coutEssai(n) : 0;
+  const assez = cout <= solde;
+
+  const basculer = (slug: string) =>
+    setChoix((c) =>
+      c.includes(slug)
+        ? c.filter((s) => s !== slug)
+        : c.length < MAX_COIFFURES
+          ? [...c, slug]
+          : c,
+    );
+
   return (
     <div className="scr">
       <div className="top">
@@ -20,7 +56,9 @@ export default function Choix3() {
           </svg>
           Carnet
         </Link>
-        <span className="pill sign">3 essais</span>
+        <span className="pill sign">
+          <Perles n={solde} />
+        </span>
       </div>
       <div className="row">
         <div
@@ -35,119 +73,96 @@ export default function Choix3() {
         </div>
         <div style={{ minWidth: "0" }}>
           <h1 className="h1" style={{ fontSize: "clamp(1rem, 5vw, 1.375rem)" }}>
-            Choisis 3 coiffures
+            Choisis jusqu'à {MAX_COIFFURES} coiffures
           </h1>
-          <p className="small">3 sur 3 choisies. Ton cercle votera ensuite.</p>
+          <p className="small" aria-live="polite">
+            {n} sur {MAX_COIFFURES} choisie{n > 1 ? "s" : ""} · <Perle />
+            {COUT_GENERATION} perles par coiffure
+          </p>
         </div>
       </div>
       <div className="g3" style={{ rowGap: "14px" }}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "6px",
-            position: "relative",
-          }}
-        >
-          <div
-            className="stk rays"
-            style={{
-              height: "120px",
-              boxShadow: "0 0 0 4px #FFFDF8, 0 0 0 7px #702D43",
-            }}
-          >
-            <img src={IMG.fulani} alt="" />
-          </div>
-          <span className="badge">1</span>
-          <span className="stk-name">Fulani</span>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "6px",
-            position: "relative",
-          }}
-        >
-          <div
-            className="stk rays"
-            style={{
-              height: "120px",
-              boxShadow: "0 0 0 4px #FFFDF8, 0 0 0 7px #702D43",
-            }}
-          >
-            <img src={IMG.knots} alt="" />
-          </div>
-          <span className="badge">2</span>
-          <span className="stk-name">Bantu knots</span>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "6px",
-            position: "relative",
-          }}
-        >
-          <div
-            className="stk rays"
-            style={{
-              height: "120px",
-              boxShadow: "0 0 0 4px #FFFDF8, 0 0 0 7px #702D43",
-            }}
-          >
-            <img src={IMG.knotless} alt="" />
-          </div>
-          <span className="badge">3</span>
-          <span className="stk-name">Knotless</span>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "6px",
-            opacity: ".55",
-          }}
-        >
-          <div className="stk rays" style={{ height: "120px" }}>
-            <img src={IMG.perruque} alt="" />
-          </div>
-          <span className="stk-name">Perruque</span>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "6px",
-            opacity: ".55",
-          }}
-        >
-          <div className="stk rays" style={{ height: "120px" }}>
-            <img src={IMG.afro} alt="" />
-          </div>
-          <span className="stk-name">Cheveux naturels</span>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "6px",
-            opacity: ".55",
-          }}
-        >
-          <div className="stk rays" style={{ height: "120px" }}>
-            <img src={IMG.locs} alt="" />
-          </div>
-          <span className="stk-name">Locks</span>
-        </div>
+        {COIFFURES.map((c) => {
+          const rang = choix.indexOf(c.slug);
+          const choisie = rang >= 0;
+          const bloquee = !choisie && n >= MAX_COIFFURES;
+          return (
+            <button
+              key={c.slug}
+              type="button"
+              aria-pressed={choisie}
+              onClick={() => basculer(c.slug)}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px",
+                position: "relative",
+                opacity: choisie ? 1 : 0.55,
+                background: "none",
+                border: "0",
+                padding: "0",
+                font: "inherit",
+                color: "inherit",
+                cursor: bloquee ? "default" : "pointer",
+              }}
+            >
+              <div
+                className="stk rays"
+                style={{
+                  height: "120px",
+                  boxShadow: choisie
+                    ? "0 0 0 4px #FFFDF8, 0 0 0 7px #702D43"
+                    : undefined,
+                }}
+              >
+                <img src={c.img} alt="" />
+              </div>
+              {choisie && <span className="badge">{rang + 1}</span>}
+              <span className="stk-name">{c.nom}</span>
+            </button>
+          );
+        })}
       </div>
-      <span className="hand">touche une coiffure choisie pour la changer</span>
+      <span className="hand">
+        {n >= MAX_COIFFURES
+          ? "touche une coiffure choisie pour la changer"
+          : "touche une coiffure pour l'ajouter"}
+      </span>
+      {n > 0 && !voteAutorise(n) && (
+        <p className="small" style={{ textAlign: "center" }}>
+          Ton cercle pourra voter à partir de {MIN_COIFFURES_VOTE} coiffures.
+        </p>
+      )}
       <div className="grow"></div>
-      <Link to="/apercus" className="btn">
-        Voir mes 3 aperçus
-      </Link>
-      <p className="small" style={{ textAlign: "center" }}>
-        Utilise 1 essai. Il t'en restera 2.
+      {assez ? (
+        <Link
+          to="/apercus"
+          className="btn"
+          aria-disabled={n === 0}
+          onClick={(e) => n === 0 && e.preventDefault()}
+          style={n === 0 ? { opacity: 0.5 } : undefined}
+        >
+          {n > 1 ? `Voir mes ${n} aperçus` : "Voir mon aperçu"}
+        </Link>
+      ) : (
+        <Link to="/recharger" className="btn">
+          Recharger mes perles
+        </Link>
+      )}
+      <p className="small" style={{ textAlign: "center" }} aria-live="polite">
+        {n === 0 ? (
+          "Choisis au moins une coiffure."
+        ) : assez ? (
+          <>
+            Utilise <Perle />
+            {cout} perles. Il t'en restera <Perle />
+            {solde - cout}.
+          </>
+        ) : (
+          <>
+            Il te manque <Perles n={cout - solde} />.
+          </>
+        )}
       </p>
     </div>
   );
