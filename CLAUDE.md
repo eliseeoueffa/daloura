@@ -148,7 +148,11 @@ npm run dev               # http://localhost:5173 (proxy /api vers :8787), puis 
 npm run build             # vérification des types + build dans dist/
 npm test                  # Vitest : projets « worker » (workerd + D1) et « web » (jsdom)
 npm run screens:import    # régénère les écrans depuis les maquettes (hors EXCLUS)
+npx cf auth whoami        # CLI Cloudflare « cf » (bêta, version fixée) : compte, D1, R2…
 ```
+
+`cf` complète `wrangler` (qui reste l'outil de build, de dev et de déploiement). Pour trouver une
+commande : `npx cf cli search "<ce que tu veux faire>"`. Connexion : `npx cf auth login`.
 
 ## Repères dans le code
 
