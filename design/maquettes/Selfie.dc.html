@@ -29,6 +29,16 @@
   <a class="btn" href="Choix-essai.dc.html">Prendre la photo</a>
   <a class="lnk" href="Selfie-refuse.dc.html">Choisir dans ma galerie</a>
 </div>
+<!-- ÉTATS DE L'ÉCRAN (faits dans src/screens/Selfie.tsx) :
+  * Ordinateur : « Prendre la photo » ouvre la webcam DANS le cadre sombre (aperçu en miroir, ovale par-dessus),
+    le bouton devient « Déclencher ».
+  * Téléphone : « Prendre la photo » ouvre l'appareil photo du téléphone (caméra avant).
+  * « Choisir dans ma galerie » ouvre la photothèque / l'explorateur de fichiers.
+  * Après la photo : le selfie remplit le cadre, sans ovale ni conseils ; texte « Ton visage est bien éclairé
+    et dégagé ? Alors c'est parfait. » ; bouton « Garder cette photo » (vers Choix-essai) ; lien « Reprendre la photo ».
+  * Caméra refusée : alerte rouge « L'accès à la caméra est bloqué. Autorise-le dans ton navigateur (le cadenas
+    à gauche de l'adresse), puis réessaie. Tu peux aussi choisir une photo dans ta galerie. »
+-->
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {

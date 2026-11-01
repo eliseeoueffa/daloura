@@ -2,6 +2,7 @@
 // Chiffres : src/lib/perles.ts. Solde : src/lib/solde.ts.
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
+import { useSelfieAffiche } from "../lib/photos";
 import { Perles } from "../components/Perle";
 import {
   PERLES_BIENVENUE,
@@ -10,6 +11,7 @@ import {
 } from "../lib/perles";
 
 export default function ChoixEssai() {
+  const { selfie, selfieStyle } = useSelfieAffiche();
   return (
     <div className="scr">
       <div className="top">
@@ -39,7 +41,7 @@ export default function ChoixEssai() {
             boxShadow: "0 0 0 3px #FFFDF8",
           }}
         >
-          <img src={IMG.selfie} alt="Ton selfie" />
+          <img src={selfie} alt="Ton selfie" style={selfieStyle} />
         </div>
         <div>
           <h1

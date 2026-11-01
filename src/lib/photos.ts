@@ -1,0 +1,201 @@
+// Photos de l'utilisatrice (selfie et inspirations), gardées DANS LE NAVIGATEUR (IndexedDB)
+// jusqu'à l'envoi vers R2 (étape 3). Rien ne quitte le téléphone pour l'instant.
+// Si IndexedDB est indisponible (navigation privée…), les photos restent en mémoire le temps de la visite.
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { IMG } from "../assets/images";
+
+export type Inspiration = { id: string; blob: Blob; createdAt: number };
+
+const BASE = "daloura-photos";
+const TABLE = "photos";
+const CLE_SELFIE = "selfie";
+const CLE_INSPIRATIONS = "inspirations";
+
+/** Taille max d'un côté après redimensionnement : assez pour l'IA, léger pour le téléphone. */
+const COTE_MAX = 1600;
+
+// ─── Stockage ───────────────────────────────────────────────────────────────
+
+let ouverture: Promise<IDBDatabase | null> | null = null;
+function ouvrir(): Promise<IDBDatabase | null> {
+  ouverture ??= new Promise((resolve) => {
+    try {
+      const req = indexedDB.open(BASE, 1);
+      req.onupgradeneeded = () => req.result.createObjectStore(TABLE);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+  return ouverture;
+}
+
+const memoire = new Map<string, unknown>();
+
+async function lire<T>(cle: string): Promise<T | undefined> {
+  const db = await ouvrir();
+  if (!db) return memoire.get(cle) as T | undefined;
+  return new Promise((resolve) => {
+    const req = db.transaction(TABLE).objectStore(TABLE).get(cle);
+    req.onsuccess = () => resolve(req.result as T | undefined);
+    req.onerror = () => resolve(memoire.get(cle) as T | undefined);
+  });
+}
+
+async function ecrire(cle: string, valeur: unknown): Promise<void> {
+  memoire.set(cle, valeur);
+  const db = await ouvrir();
+  if (!db) return;
+  await new Promise<void>((resolve) => {
+    const tx = db.transaction(TABLE, "readwrite");
+    if (valeur === undefined) tx.objectStore(TABLE).delete(cle);
+    else tx.objectStore(TABLE).put(valeur, cle);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => resolve();
+  });
+}
+
+// ─── Petit état partagé entre écrans ────────────────────────────────────────
+
+type Etat = {
+  selfie: Blob | null;
+  inspirations: Inspiration[];
+  charge: boolean;
+};
+let etat: Etat = { selfie: null, inspirations: [], charge: false };
+const abonnes = new Set<() => void>();
+const publier = (e: Partial<Etat>) => {
+  etat = { ...etat, ...e };
+  abonnes.forEach((f) => f());
+};
+
+let chargement: Promise<void> | null = null;
+function charger() {
+  chargement ??= Promise.all([
+    lire<Blob>(CLE_SELFIE),
+    lire<Inspiration[]>(CLE_INSPIRATIONS),
+  ]).then(([s, i]) =>
+    publier({ selfie: s ?? null, inspirations: i ?? [], charge: true }),
+  );
+  return chargement;
+}
+
+function usePhotos(): Etat {
+  const e = useSyncExternalStore(
+    (f) => {
+      abonnes.add(f);
+      return () => abonnes.delete(f);
+    },
+    () => etat,
+  );
+  useEffect(() => {
+    void charger();
+  }, []);
+  return e;
+}
+
+/** Adresse locale (blob:) d'une photo, libérée quand l'écran la quitte. */
+export function useUrl(blob: Blob | null | undefined): string | null {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!blob) return setUrl(null);
+    const u = URL.createObjectURL(blob);
+    setUrl(u);
+    return () => URL.revokeObjectURL(u);
+  }, [blob]);
+  return url;
+}
+
+// ─── Préparation des images ─────────────────────────────────────────────────
+
+/** Redimensionne et recompresse en JPEG (une photo de téléphone fait souvent 5 à 12 Mo). */
+export async function preparer(
+  source: Blob | HTMLCanvasElement,
+): Promise<Blob> {
+  let img: CanvasImageSource & { width: number; height: number };
+  try {
+    img =
+      source instanceof HTMLCanvasElement
+        ? source
+        : await createImageBitmap(source, { imageOrientation: "from-image" });
+  } catch {
+    if (source instanceof Blob && source.type.startsWith("image/"))
+      return source; // format non décodable ici : on garde tel quel
+    throw new Error("image_illisible");
+  }
+  const r = Math.min(1, COTE_MAX / Math.max(img.width, img.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(img.width * r);
+  canvas.height = Math.round(img.height * r);
+  canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+  return new Promise((resolve, reject) =>
+    canvas.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error("image_illisible"))),
+      "image/jpeg",
+      0.85,
+    ),
+  );
+}
+
+// ─── API des écrans ─────────────────────────────────────────────────────────
+
+export function useSelfie() {
+  const { selfie, charge } = usePhotos();
+  return {
+    selfie,
+    charge,
+    async enregistrer(photo: Blob) {
+      await ecrire(CLE_SELFIE, photo);
+      publier({ selfie: photo });
+    },
+    async supprimer() {
+      await ecrire(CLE_SELFIE, undefined);
+      publier({ selfie: null });
+    },
+  };
+}
+
+export function useInspirations() {
+  const { inspirations, charge } = usePhotos();
+  return {
+    inspirations,
+    charge,
+    async ajouter(fichiers: Iterable<Blob>) {
+      await charger();
+      const nouvelles: Inspiration[] = [];
+      for (const f of fichiers) {
+        try {
+          nouvelles.push({
+            id: crypto.randomUUID(),
+            blob: await preparer(f),
+            createdAt: Date.now(),
+          });
+        } catch {
+          // fichier qui n'est pas une image lisible : ignoré
+        }
+      }
+      const liste = [...etat.inspirations, ...nouvelles];
+      await ecrire(CLE_INSPIRATIONS, liste);
+      publier({ inspirations: liste });
+      return nouvelles.length;
+    },
+    async retirer(id: string) {
+      const liste = etat.inspirations.filter((i) => i.id !== id);
+      await ecrire(CLE_INSPIRATIONS, liste);
+      publier({ inspirations: liste });
+    },
+  };
+}
+
+/** Selfie à afficher : la vraie photo si elle existe, sinon l'illustration provisoire. */
+export function useSelfieAffiche(repli: string = IMG.selfie) {
+  const { selfie } = useSelfie();
+  const url = useUrl(selfie);
+  return {
+    selfie: url ?? repli,
+    selfieStyle: url
+      ? ({ width: "100%", height: "100%", objectFit: "cover" } as const)
+      : undefined,
+  };
+}

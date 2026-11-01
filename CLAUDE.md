@@ -63,3 +63,13 @@ My Hair Recap, payé en perles sans Itaja : 3 mois = 20, 6 mois = 40, 12 mois = 
   n'existe pas, seul fichier à changer pour brancher le vrai solde.
 - Les écrans publics (Accueil, page de vote, Vote-ferme, Vote-merci) gardent « ton premier essai est offert ».
 - Code secret : on parle de « tentatives », pas d'« essais », pour ne pas confondre.
+
+## Photos
+
+- Selfie et inspirations sont gardés **dans le navigateur** (IndexedDB, `src/lib/photos.ts`), redimensionnés
+  à 1600 px en JPEG, jusqu'à l'envoi vers R2 (étape 3). `useSelfie()`, `useInspirations()`, `useSelfieAffiche()`.
+- Prendre une photo : sur écran tactile, l'appareil photo du système (`<input capture="user">`) ; sur ordinateur,
+  la webcam dans la page (`getUserMedia`), avec un message clair si l'accès est refusé.
+- `<ChoixFichier>` (`src/components/ChoixFichier.tsx`) ouvre la galerie ou l'appareil photo.
+- La caméra exige HTTPS (ou `localhost`) : en local sur téléphone via l'IP de l'ordinateur, elle ne s'ouvre pas,
+  utiliser le lien Cloudflare.

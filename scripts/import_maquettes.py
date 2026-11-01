@@ -38,6 +38,8 @@ BLOBS = {
 # reporter à la main dans le .tsx toute modification de la maquette.
 MANUELS = {
     "Apercus",
+    "Bibliotheque",
+    "Bibliotheque-vide",
     "Carnet",
     "Choix-3",
     "Choix-essai",
@@ -50,6 +52,7 @@ MANUELS = {
     "Recap-paiement",
     "Recharger",
     "Sans-essai",
+    "Selfie",
 }
 
 NUMERIC = {"maxLength", "aria-valuenow", "aria-valuemin", "aria-valuemax", "tabIndex", "rows", "cols"}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
+import { useSelfieAffiche } from "../lib/photos";
 import { Perle, Perles } from "../components/Perle";
 import {
   COUT_GENERATION,
@@ -23,6 +24,7 @@ const COIFFURES = [
 ];
 
 export default function Choix3() {
+  const { selfie, selfieStyle } = useSelfieAffiche();
   const solde = useSolde("avantEssai");
   const [choix, setChoix] = useState<string[]>(
     COIFFURES.slice(0, MAX_COIFFURES).map((c) => c.slug),
@@ -69,7 +71,7 @@ export default function Choix3() {
             boxShadow: "0 0 0 3px #FFFDF8",
           }}
         >
-          <img src={IMG.selfie} alt="Ton selfie" />
+          <img src={selfie} alt="Ton selfie" style={selfieStyle} />
         </div>
         <div style={{ minWidth: "0" }}>
           <h1 className="h1" style={{ fontSize: "clamp(1rem, 5vw, 1.375rem)" }}>

@@ -11,5 +11,5 @@
     "isolatedModules": true,
     "types": ["@cloudflare/workers-types", "@cloudflare/vitest-plugin/types"]
   },
-  "include": ["worker", "src/lib"]
+  "include": ["worker", "src/lib/perles.ts"]
 }
