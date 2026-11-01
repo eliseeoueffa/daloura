@@ -63,10 +63,15 @@ Parcours d'une era :
 - **Blocage après plusieurs codes faux** (écran `CodeBloque`), limite de tentatives par email et
   par IP, sessions longues (cookie HttpOnly, Secure, SameSite=Lax). Code haché en PBKDF2
   (WebCrypto, sel par utilisatrice) : avec 10 000 combinaisons, le blocage est indispensable.
-  Valeur sur les maquettes : 5 erreurs max, puis 15 minutes de blocage (à faire valider par
-  Elisée). Le lien « code oublié » débloque aussi.
+  Validé par Elisée : 5 erreurs, puis 2 minutes de blocage (les maquettes disaient 15 minutes :
+  texte de `CodeBloque` et `CodeErreur` à adapter). Le lien « code oublié » débloque aussi.
+- **Codes refusés** : 0000, 1234 et autres codes évidents, en plus du conseil des maquettes
+  (« évite 0000, 1234 ou ta date de naissance »).
+- **Lien de réinitialisation** : valable 1 heure, utilisable une seule fois.
+- **Prénom demandé à l'inscription** (décision d'Elisée, écart volontaire par rapport aux
+  maquettes), utilisé dans les emails ; 20 caractères max, seul le premier mot est affiché.
 - **Un compte existant n'a plus droit à l'essai offert.** Pas de lien « J'ai déjà un compte »
-  sur l'inscription.
+  sur l'inscription. Un marqueur gardé sur le téléphone sert à afficher `EssaiDejaUtilise`.
 - **Essai offert** : 1 aperçu, sans vote.
 - **Offres** :
 
