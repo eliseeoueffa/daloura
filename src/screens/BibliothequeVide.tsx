@@ -1,9 +1,16 @@
-// Généré depuis design/maquettes/Bibliotheque-vide.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Bibliotheque-vide.dc.html.
+// « Ajouter des photos » ouvre la galerie ; les photos sont gardées dans le navigateur (src/lib/photos.ts).
+import { Link, Navigate, useNavigate } from "react-router";
 import { IMG } from "../assets/images";
+import { ChoixFichier } from "../components/ChoixFichier";
+import { useInspirations } from "../lib/photos";
 
 export default function BibliothequeVide() {
+  const navigate = useNavigate();
+  const { inspirations, charge, ajouter } = useInspirations();
+  // Elle a déjà des inspirations : on va directement à sa bibliothèque.
+  if (charge && inspirations.length > 0)
+    return <Navigate to="/bibliotheque" replace />;
   return (
     <div className="scr">
       <div className="top">
@@ -90,9 +97,16 @@ export default function BibliothequeVide() {
         </p>
       </div>
       <div className="grow"></div>
-      <Link to="/bibliotheque" className="btn">
+      <ChoixFichier
+        className="btn"
+        multiple
+        onFichiers={async (f) => {
+          await ajouter(f);
+          navigate("/bibliotheque");
+        }}
+      >
         Ajouter des photos
-      </Link>
+      </ChoixFichier>
       <p className="small" style={{ textAlign: "center" }}>
         Tes photos restent sur ton téléphone jusqu'à ton premier essai.
       </p>

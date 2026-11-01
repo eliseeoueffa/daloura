@@ -113,3 +113,12 @@ button,a,[role="button"],.btn,.btn2,.lnk,.back,.pill,.tabbar a{touch-action:mani
 /* Perle : la monnaie de Daloura (perle dorée des tresses), devant chaque solde ou coût */
 .perle{display:inline-block;width:.9em;height:.9em;border-radius:50%;flex-shrink:0;vertical-align:-.1em;margin-right:.3em;background:radial-gradient(circle at 32% 30%,#FFF4DC 0 18%,#F2C46A 34%,#E8A93A 62%,#B9781C 100%);box-shadow:inset 0 -1px 1px rgba(73,51,47,.25)}
 .perles{display:inline-flex;align-items:center;white-space:nowrap}
+/* Boutons <button> qui reprennent le style des liens */
+button.btn,button.btn2,button.lnk{cursor:pointer;width:100%}
+button.lnk{background:none;border:0;font-family:inherit}
+button:disabled{opacity:.5;cursor:default}
+/* Caméra du selfie : aperçu en miroir, comme un miroir */
+.viewfinder video,.viewfinder .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.viewfinder video{transform:scaleX(-1)}
+/* Case « + Ajouter » de la bibliothèque d'inspirations */
+.stk-ajout{height:120px;border:2px dashed rgba(112,45,67,.35);border-radius:16px;background:#FFFBF4;color:#702D43;font:inherit;font-weight:700;font-size:.875rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}
