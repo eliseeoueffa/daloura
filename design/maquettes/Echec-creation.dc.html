@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Échec de création</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./daloura.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Corben:wght@700&amp;family=Gochi+Hand&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <div class="top"><span class="logo"><img src="/_blob/beb8e6ca24911f9e6b87f82a931fc6f1" alt="">daloura</span></div>
+  <div class="grow"></div>
+  <div style="position: relative; align-self: center; width: 230px">
+    <div class="pola" style="transform: rotate(-3deg)"><span class="tape"></span><div class="ph" style="background: #EADFCF; border: 2px dashed rgba(112,45,67,.3); box-sizing: border-box; align-items: center"><span class="hand" style="font-size: 22px">oups…</span></div><div class="cap">pas cette fois</div></div>
+    <div class="stk" style="position: absolute; right: -24px; top: 30px; width: 70px; height: 78px; background: #D8CFC4; filter: blur(1.2px) grayscale(.5); transform: rotate(9deg)"><img src="/_blob/105e3623df0e3fb360732f931406c631" alt=""></div>
+  </div>
+  <h1 class="h1" style="text-align: center">Ton aperçu n'a pas pu être créé</h1>
+  <p class="p" style="text-align: center">La coiffure de ta photo d'inspiration n'est pas assez visible. Ton essai n'a pas été utilisé.</p>
+  <div class="grow"></div>
+  <a class="btn" href="Choix-essai.dc.html">Choisir une autre inspiration</a>
+  <a class="btn2" href="Attente.dc.html">Réessayer avec la même photo</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

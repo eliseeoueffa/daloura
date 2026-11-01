@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Confirme ton code</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./daloura.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Corben:wght@700&amp;family=Gochi+Hand&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <div class="top"><a class="back" href="Code-nouveau.dc.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Retour</a></div>
+  <h1 class="h1">Retape ton code secret</h1>
+  <p class="p">Pour être sûre que c'est le bon, tape les mêmes 4 chiffres une deuxième fois.</p>
+  <div class="pin" aria-label="Confirmation du code, 3 chiffres saisis"><span class="on">•</span><span class="on">•</span><span class="on">•</span><span></span></div>
+  <p class="small">Si les deux codes sont différents, on te demande de recommencer.</p>
+  <div class="grow"></div>
+  <div class="pad" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span style="background: transparent; border: 0"></span><span>0</span><span style="font-size: 14px">Effacer</span></div>
+  <a class="btn" href="Consentement.dc.html">Confirmer mon code</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Consentement selfie</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./daloura.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Corben:wght@700&amp;family=Gochi+Hand&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <div class="top"><a class="back" href="Code-nouveau.dc.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Retour</a></div>
+  <div class="row" style="gap: 14px">
+    <div class="pola" style="width: 84px; transform: rotate(-5deg); flex: none"><div class="ph bg-rose"><img src="/_blob/0d9e4bf95aafa160ba825e551ce02903" alt=""></div><div class="cap" style="font-size: 13px">mon selfie</div></div>
+    <h1 class="h1" style="font-size: 27px">Ce qu'on fait de ton selfie</h1>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div class="card"><p class="label">Il sert seulement à créer tes aperçus</p><p class="small">Jamais pour de la publicité, jamais revendu.</p></div>
+    <div class="card"><p class="label">Personne ne le voit sans toi</p><p class="small">Ton cercle voit tes aperçus seulement si tu partages le lien.</p></div>
+    <div class="card"><p class="label">Tu peux le supprimer à tout moment</p><p class="small">Depuis ton profil, avec tes aperçus.</p></div>
+    <div class="card" style="background: #F3DDE1; border: 0"><p class="label">Un aperçu, pas une promesse</p><p class="small" style="color: #49332F">Le rendu final dépend de tes cheveux et de ta coiffeuse.</p></div>
+  </div>
+  <div class="grow"></div>
+  <label class="row" for="ok" style="align-items: flex-start; font-size: 15px; min-height: 44px; gap: 10px">
+    <input id="ok" type="checkbox" checked style="width: 22px; height: 22px; margin: 0; flex: none; accent-color: #702D43">
+    <span>J'accepte que mon selfie serve à créer mes aperçus.</span>
+  </label>
+  <a class="btn" href="Notifications.dc.html">Créer mon aperçu</a>
+  <a class="lnk" href="Consentement.dc.html">Lire la politique de confidentialité</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

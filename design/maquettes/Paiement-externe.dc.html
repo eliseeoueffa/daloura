@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Page du prestataire</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./daloura.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Corben:wght@700&amp;family=Gochi+Hand&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr" style="background: #ECECEC; color: #333333; font-family: Arial, Helvetica, sans-serif; gap: 12px">
+  <div style="background: #FFFFFF; border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #666666; display: flex; align-items: center; gap: 8px">
+    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="none" stroke="#666666" stroke-width="2"></rect><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="#666666" stroke-width="2"></path></svg>
+    Itaja, paiement sécurisé
+  </div>
+  <div style="border: 2px dashed #9A9A9A; border-radius: 12px; padding: 10px 12px; background: #F7F7F7">
+    <p style="margin: 0; font-size: 13px; color: #555555">Page de paiement Itaja, en version neutre. Daloura lui transmet le montant, le logo et l'adresse de retour.</p>
+  </div>
+  <div style="background: #FFFFFF; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 14px; flex-grow: 1">
+    <div style="display: flex; align-items: center; gap: 10px"><div class="ico" style="width: 36px; height: 36px; border-radius: 8px"><img src="/_blob/ab80fb77058a7fb1a9428fc9b12a6fe4" alt="Logo Daloura"></div><div><p style="margin: 0; font-weight: 700; font-size: 15px">Daloura</p><p style="margin: 0; font-size: 13px; color: #666666">My Hair Era</p></div></div>
+    <p style="margin: 0; font-size: 26px; font-weight: 700">2 500 XOF</p>
+    <p style="margin: 0; font-size: 14px; font-weight: 700">Moyen de paiement</p>
+    <div style="border: 2px solid #333333; border-radius: 8px; padding: 14px; font-size: 15px">Mobile Money</div>
+    <div style="border: 1px solid #CCCCCC; border-radius: 8px; padding: 14px; font-size: 15px">Carte bancaire</div>
+    <div style="border: 1px solid #CCCCCC; border-radius: 8px; padding: 14px; font-size: 15px; color: #888888">[Autres moyens selon le pays]</div>
+    <div style="flex-grow: 1"></div>
+    <a href="Paiement-attente.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 50px; border-radius: 8px; background: #333333; color: #FFFFFF; font-weight: 700; text-decoration: none">Payer 2 500 XOF</a>
+    <a href="Paiement-echec.dc.html" style="text-align: center; font-size: 14px; color: #555555; min-height: 40px; display: flex; align-items: center; justify-content: center">Annuler et revenir à Daloura</a>
+    <p style="margin: 0; text-align: center; font-size: 12px; color: #888888">Paiement sécurisé par Itaja</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

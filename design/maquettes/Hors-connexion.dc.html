@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Hors connexion</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./daloura.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Corben:wght@700&amp;family=Gochi+Hand&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <div class="top"><span class="logo"><img src="/_blob/beb8e6ca24911f9e6b87f82a931fc6f1" alt="">daloura</span></div>
+  <div class="alert" style="background: #49332F; color: #F5EFE6"><span class="ic" style="background: #E8A93A; color: #49332F">!</span><div><b>Pas de connexion internet</b>On réessaie tout seul dès que le réseau revient.</div></div>
+  <div class="grow"></div>
+  <svg viewBox="0 0 64 64" width="72" height="72" style="align-self: center" aria-hidden="true"><g fill="none" stroke="#702D43" stroke-width="3.5" stroke-linecap="round"><path d="M8 26 Q32 6 56 26"></path><path d="M16 35 Q32 21 48 35"></path><path d="M24 44 Q32 37 40 44"></path><path d="M12 12 L52 56"></path></g><circle cx="32" cy="52" r="3.5" fill="#702D43"></circle></svg>
+  <h1 class="h1" style="text-align: center">Le réseau a lâché</h1>
+  <p class="p" style="text-align: center">Ton carnet reste consultable. Les essais, les votes et les paiements reprennent quand la connexion revient.</p>
+  <p class="small" style="text-align: center">Un essai en cours n'est pas perdu : on te prévient quand il est prêt.</p>
+  <div class="grow"></div>
+  <a class="btn" href="Hors-connexion.dc.html">Réessayer</a>
+  <a class="lnk" href="Carnet.dc.html">Voir mon carnet</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

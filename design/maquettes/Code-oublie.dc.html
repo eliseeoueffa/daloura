@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Code oublié</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./daloura.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Corben:wght@700&amp;family=Gochi+Hand&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <div class="top"><a class="back" href="Code-saisie.dc.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Retour</a></div>
+  <h1 class="h1">Tu as oublié ton code</h1>
+  <p class="p">Entre l'email de ton compte. On t'envoie un lien pour choisir un nouveau code.</p>
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <label class="label" for="mail">Ton adresse email</label>
+    <input class="input" id="mail" type="email" value="awa.k@gmail.com">
+  </div>
+  <div class="alert"><span class="ic">i</span><div>Tes selfies, tes aperçus et ton carnet restent protégés pendant ce temps.</div></div>
+  <div class="grow"></div>
+  <a class="btn" href="Code-mail-envoye.dc.html">Recevoir le lien</a>
+  <a class="lnk" href="Code-saisie.dc.html">Je me souviens de mon code</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

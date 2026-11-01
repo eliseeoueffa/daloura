@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Code incorrect</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./daloura.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Corben:wght@700&amp;family=Gochi+Hand&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr" style="gap: 14px">
+  <div class="top"><a class="back" href="Main.dc.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Accueil</a></div>
+  <h1 class="h1">Contente de te revoir</h1>
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <label class="label" for="mail">Ton adresse email</label>
+    <input class="input" id="mail" type="email" value="awa.k@gmail.com">
+  </div>
+  <p class="label">Ton code secret</p>
+  <div class="pin" aria-label="Code incorrect"><span style="border: 2px solid #A1262E; color: #A1262E">•</span><span style="border: 2px solid #A1262E; color: #A1262E">•</span><span style="border: 2px solid #A1262E; color: #A1262E">•</span><span style="border: 2px solid #A1262E; color: #A1262E">•</span></div>
+  <div class="alert err"><span class="ic">!</span><div><b>Ce code n'est pas le bon.</b>Il te reste 2 essais. Après, la connexion est bloquée 15 minutes.</div></div>
+  <a class="lnk" href="Code-oublie.dc.html" style="min-height: 36px">J'ai oublié mon code</a>
+  <div class="grow"></div>
+  <div class="pad" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span style="background: transparent; border: 0"></span><span>0</span><span style="font-size: 14px">Effacer</span></div>
+  <a class="btn" href="Code-bloque.dc.html">Réessayer</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

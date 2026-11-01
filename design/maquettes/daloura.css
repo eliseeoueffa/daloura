@@ -1,0 +1,95 @@
+/* Daloura : maquettes finales, guide de marque v1 (crème, brun, bordeaux, rose poudré, jaune enseigne)
+   Corrections du stress-test : écrans qui défilent, barre et boutons fixés en bas, textes en rem,
+   coupure des emails et des mots longs, noms de coiffure limités à 2 lignes. */
+.scr{width:390px;height:844px;box-sizing:border-box;background:#F5EFE6;color:#49332F;font-family:"Bricolage Grotesque","Segoe UI",Roboto,Arial,sans-serif;display:flex;flex-direction:column;gap:16px;padding:12px 20px 24px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;position:relative}
+.scr > *{flex-shrink:0}
+.scr > .grow{flex-shrink:1}
+.scr.wine{background:#702D43;color:#F5EFE6}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;font-size:.875rem;color:#7A5E57}
+.top > *{min-width:0}
+.wine .top{color:#E8C3CB}
+.back{display:inline-flex;align-items:center;gap:6px;color:#702D43;text-decoration:none;font-weight:650;min-height:44px;flex-shrink:0}
+.back svg{width:18px;height:18px;flex-shrink:0}
+.logo{display:inline-flex;align-items:center;gap:6px;font-family:"Corben",Georgia,serif;font-weight:700;font-size:1.3125rem;color:#702D43;font-variant-ligatures:none;line-height:1;flex-shrink:0}
+.logo img{width:26px;height:26px;display:block}
+.logo.inv{color:#F5EFE6}
+.h1{margin:0;font-family:"Corben",Georgia,serif;font-weight:700;font-size:1.875rem;line-height:1.08;color:#702D43;font-variant-ligatures:none;text-wrap:balance;overflow-wrap:anywhere}
+.wine .h1{color:#F5EFE6}
+.h2{margin:0;font-size:1.1875rem;line-height:1.2;font-weight:700;color:#49332F;overflow-wrap:anywhere}
+.p{margin:0;font-size:1rem;line-height:1.45;color:#49332F;overflow-wrap:anywhere}
+.small{margin:0;font-size:.84375rem;line-height:1.4;color:#7A5E57;overflow-wrap:anywhere}
+.wine .p,.wine .small{color:#F3DDE1}
+.hand{font-family:"Gochi Hand","Segoe Print",cursive;font-size:1.25rem;line-height:1.15;color:#702D43;transform:rotate(-2deg);display:inline-block;overflow-wrap:anywhere}
+.wine .hand{color:#E8A93A}
+.btn{display:flex;align-items:center;justify-content:center;text-align:center;gap:8px;min-height:52px;border-radius:10px;background:#702D43;color:#FFFBF4;font-weight:700;font-size:1rem;text-decoration:none;border:0;padding:0 16px;box-sizing:border-box;font-family:inherit}
+.btn.sign{background:#E8A93A;color:#49332F}
+.btn.cream{background:#F5EFE6;color:#702D43}
+.btn2{display:flex;align-items:center;justify-content:center;text-align:center;gap:8px;min-height:52px;border-radius:10px;background:transparent;color:#702D43;font-weight:700;font-size:1rem;text-decoration:none;border:1.5px solid #702D43;padding:0 16px;box-sizing:border-box;font-family:inherit}
+.lnk{display:flex;align-items:center;justify-content:center;text-align:center;min-height:44px;color:#702D43;font-size:.9375rem;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.wine .lnk{color:#F5EFE6}
+.grow{flex-grow:1}
+/* Bouton principal fixé en bas : il reste visible quand l'écran défile */
+.foot{position:sticky;bottom:0;margin:0 -20px -24px;padding:16px 20px 24px;background:linear-gradient(rgba(245,239,230,0),#F5EFE6 26%);display:flex;flex-direction:column;gap:10px;z-index:4}
+.wine .foot{background:linear-gradient(rgba(112,45,67,0),#702D43 26%)}
+.card{background:#FFFBF4;border:1px solid rgba(73,51,47,.14);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card.on{border:2px solid #702D43}
+.card.win{border:2px solid #E8A93A;background:#F8EBCF}
+.row{display:flex;align-items:center;gap:12px}
+.row > *{min-width:0}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.label{font-size:.9375rem;font-weight:650;color:#49332F;margin:0;overflow-wrap:anywhere}
+.input{min-height:52px;border:1.5px solid rgba(73,51,47,.25);border-radius:10px;padding:0 14px;font-size:1.0625rem;font-family:inherit;color:#49332F;background:#FFFBF4;box-sizing:border-box;width:100%;min-width:0}
+.input:focus{outline:none;border-color:#702D43;box-shadow:0 0 0 3px #E8C3CB}
+.input.bad{border:2px solid #A1262E}
+.pill{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;background:#E8C3CB;font-size:.8125rem;font-weight:650;color:#49332F;white-space:nowrap;flex-shrink:0}
+.pill.on{background:#702D43;color:#F5EFE6}
+.pill.sign{background:#E8A93A;color:#49332F}
+.alert{display:flex;gap:10px;align-items:flex-start;background:#F3DDE1;border-radius:10px;padding:12px 14px;font-size:.875rem;line-height:1.4;color:#49332F;overflow-wrap:anywhere}
+.alert b{display:block}
+.alert .ic{width:22px;height:22px;border-radius:50%;background:#702D43;color:#F5EFE6;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8125rem;flex:none}
+.alert.err{background:#F6DEDF}
+.alert.err .ic{background:#A1262E}
+.badge{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:999px;background:#702D43;color:#F5EFE6;font-size:.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;z-index:3;flex-shrink:0}
+.badge.sign{background:#E8A93A;color:#49332F}
+.badge.err{background:#A1262E}
+.dots{display:flex;gap:6px}
+.dots i{flex:1;height:4px;border-radius:2px;background:rgba(112,45,67,.18)}
+.dots i.on{background:#702D43}
+.pin{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.pin span{height:62px;border:1.5px solid rgba(73,51,47,.25);border-radius:12px;background:#FFFBF4;display:flex;align-items:center;justify-content:center;font-size:1.625rem;font-weight:800;color:#702D43}
+.pin span.on{border:2px solid #702D43}
+.pad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pad span{min-height:52px;border-radius:10px;background:#FFFBF4;border:1px solid rgba(73,51,47,.1);display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:700;color:#49332F}
+.bar{height:8px;border-radius:4px;background:rgba(112,45,67,.14);overflow:hidden}
+.bar i{display:block;height:100%;background:#702D43}
+.bar i.win{background:#E8A93A}
+.sheet{background:#FFFBF4;border-radius:20px 20px 0 0;margin:0 -20px -24px;padding:22px 20px 28px;display:flex;flex-direction:column;gap:12px;box-shadow:0 -12px 30px -14px rgba(73,51,47,.4)}
+.pola{background:#FFFDF8;padding:8px 8px 0;box-shadow:0 2px 3px rgba(73,51,47,.15),0 14px 24px -12px rgba(73,51,47,.5);border-radius:2px;position:relative;box-sizing:border-box}
+.pola .ph{display:flex;align-items:flex-end;justify-content:center;overflow:hidden;width:100%;aspect-ratio:1/1.05}
+.pola .ph img{width:92%;display:block}
+.pola .cap{font-family:"Gochi Hand","Segoe Print",cursive;font-size:1rem;color:#49332F;padding:5px 2px 8px;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tape{position:absolute;top:-9px;left:50%;width:44%;height:18px;background:rgba(232,169,58,.72);transform:translateX(-50%) rotate(-4deg);z-index:2}
+.bg-rose{background:#E8C3CB}
+.bg-sun{background:#EDC57E}
+.bg-cream{background:#EADFCF}
+.bg-wine{background:#9C566D}
+.bg-raies{background-color:#702D43;background-image:url("/_blob/21cdbea27871cc142d05e37334af6bd5");background-size:30px 30px}
+.rays{background:repeating-conic-gradient(from 0deg at 50% 46%,#E8A93A 0 15deg,#F2C978 15deg 30deg)}
+.stk{border-radius:16px;box-shadow:0 0 0 4px #FFFDF8,0 6px 12px -6px rgba(73,51,47,.45);overflow:hidden;display:flex;align-items:flex-end;justify-content:center;position:relative;flex-shrink:0}
+.stk img{width:90%;display:block}
+.stk.round{border-radius:50%}
+/* Nom de coiffure : 2 lignes maximum (24 caractères conseillés) */
+.stk-name{font-family:"Corben",Georgia,serif;font-weight:700;font-size:.8125rem;color:#702D43;text-align:center;font-variant-ligatures:none;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.face{border-radius:50%;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;background:#E8C3CB;flex:none}
+.face img{width:92%;display:block}
+.ico{background:#702D43;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:none}
+.ico img{width:66%;display:block}
+.band{background:#702D43;color:#F5EFE6;margin:-12px -20px 0;padding:12px 20px 22px;border-radius:0 0 26px 26px;position:relative;display:flex;flex-direction:column;gap:12px}
+.viewfinder{background:#2A1E1B;border-radius:18px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.note{background:#FFFDF8;box-shadow:0 6px 14px -8px rgba(73,51,47,.45);padding:10px 12px;font-family:"Gochi Hand","Segoe Print",cursive;font-size:1.125rem;color:#49332F;line-height:1.15;overflow-wrap:anywhere}
+/* Barre de navigation fixée en bas de l'écran */
+.tabbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid rgba(73,51,47,.12);margin:0 -20px;padding:8px 0 16px;background:#FFFBF4;text-align:center;font-size:.75rem;font-weight:650;position:sticky;bottom:0;z-index:5}
+.tabbar a{color:#7A5E57;text-decoration:none;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.tabbar a.on{color:#702D43}
+.tabbar svg{width:22px;height:22px}

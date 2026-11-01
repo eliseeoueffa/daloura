@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Vérification du paiement</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./daloura.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Corben:wght@700&amp;family=Gochi+Hand&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <div class="top"><span class="logo"><img src="/_blob/beb8e6ca24911f9e6b87f82a931fc6f1" alt="">daloura</span><span>2 500 F</span></div>
+  <div class="grow"></div>
+  <div style="width: 64px; height: 64px; border-radius: 50%; border: 6px solid #E8C3CB; border-top-color: #702D43; align-self: center" aria-hidden="true"></div>
+  <h1 class="h1" style="text-align: center">On vérifie ton paiement…</h1>
+  <p class="p" style="text-align: center">Itaja nous confirme ton paiement en quelques secondes. Si tu paies par Mobile Money, valide d'abord la demande sur ton téléphone.</p>
+  <span class="hand" style="align-self: center">reste sur cette page</span>
+  <div class="grow"></div>
+  <a class="btn2" href="Paiement-reussi.dc.html">Paiement réussi (démo)</a>
+  <a class="lnk" href="Paiement-echec.dc.html">Paiement échoué (démo)</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

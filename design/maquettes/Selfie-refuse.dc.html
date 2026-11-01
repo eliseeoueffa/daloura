@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Selfie refusé</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./daloura.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Corben:wght@700&amp;family=Gochi+Hand&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <div class="top"><a class="back" href="Selfie.dc.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Retour</a></div>
+  <h1 class="h1">On voit mal ton visage</h1>
+  <div class="viewfinder" style="height: 340px; background: #1A1210">
+    <img src="/_blob/0d9e4bf95aafa160ba825e551ce02903" alt="" style="position: absolute; bottom: 0; width: 290px; filter: brightness(.35) blur(2px)">
+    <span class="badge err" style="position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; font-size: 16px">!</span>
+  </div>
+  <div class="alert err"><span class="ic">!</span><div><b>La photo est trop sombre</b>L'aperçu serait flou et peu fidèle. Reprends-la face à une fenêtre.</div></div>
+  <div class="grow"></div>
+  <a class="btn" href="Selfie.dc.html">Reprendre la photo</a>
+  <a class="btn2" href="Selfie.dc.html">Choisir une autre photo</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

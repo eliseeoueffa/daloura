@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Ton choix</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./daloura.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Corben:wght@700&amp;family=Gochi+Hand&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <div class="top"><a class="back" href="Suivi-votes.dc.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Votes</a></div>
+  <h1 class="h1">Et toi, tu choisis lequel ?</h1>
+  <p class="p">Ton cercle préfère les bantu knots. Le dernier mot est à toi.</p>
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div class="card win" style="flex-direction: row; align-items: center; gap: 12px; position: relative"><div class="pola" style="width: 70px; padding: 4px 4px 0; flex: none; transform: rotate(-3deg)"><div class="ph bg-sun"><img src="/_blob/980afcc3aeaa7f368928238c85e7b5f0" alt=""></div><div style="height: 10px"></div></div><div style="flex: 1"><p class="label">Bantu knots</p><p class="small">Le choix du cercle, 3 votes</p></div><span class="badge" style="position: static"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#F5EFE6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></div>
+    <div class="card" style="flex-direction: row; align-items: center; gap: 12px"><div class="pola" style="width: 70px; padding: 4px 4px 0; flex: none; transform: rotate(2deg)"><div class="ph bg-rose"><img src="/_blob/1256d9436cf3a94f9ce38866b1a3e1a0" alt=""></div><div style="height: 10px"></div></div><div style="flex: 1"><p class="label">Fulani</p><p class="small">2 votes</p></div></div>
+    <div class="card" style="flex-direction: row; align-items: center; gap: 12px"><div class="pola" style="width: 70px; padding: 4px 4px 0; flex: none; transform: rotate(-2deg)"><div class="ph bg-cream"><img src="/_blob/3ae7835cd76617bcc8c9539765e16470" alt=""></div><div style="height: 10px"></div></div><div style="flex: 1"><p class="label">Knotless</p><p class="small">0 vote</p></div></div>
+  </div>
+  <span class="hand">c'est toi qui le portes</span>
+  <div class="grow"></div>
+  <a class="btn" href="Era-enregistree.dc.html">C'est mon prochain look</a>
+  <p class="small" style="text-align: center">Ton cercle verra ton choix sur la page de vote.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

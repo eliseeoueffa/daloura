@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Permission notifications</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./daloura.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Corben:wght@700&amp;family=Gochi+Hand&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <div class="top"><span class="logo"><img src="/_blob/beb8e6ca24911f9e6b87f82a931fc6f1" alt="">daloura</span></div>
+  <div class="grow"></div>
+  <div style="position: relative; height: 230px">
+    <div class="pola" style="position: absolute; left: 110px; top: 0; width: 150px; transform: rotate(5deg); filter: blur(3px); opacity: .7"><div class="ph bg-cream"><img src="/_blob/3ae7835cd76617bcc8c9539765e16470" alt=""></div><div class="cap">bientôt…</div></div>
+    <div class="card" style="position: absolute; left: 0; right: 0; bottom: 0; flex-direction: row; gap: 12px; align-items: center; box-shadow: 0 14px 28px -14px rgba(73,51,47,.55); z-index: 2">
+      <div class="ico" style="width: 42px; height: 42px; border-radius: 10px"><img src="/_blob/ab80fb77058a7fb1a9428fc9b12a6fe4" alt=""></div>
+      <div><p class="label">Ton aperçu est prêt</p><p class="small">Viens voir ta coiffure knotless sur toi.</p></div>
+    </div>
+  </div>
+  <h1 class="h1">On te prévient quand ton aperçu est prêt ?</h1>
+  <p class="p">La création prend entre 30 secondes et 2 minutes. Tu peux fermer l'app en attendant.</p>
+  <div class="grow"></div>
+  <a class="btn" href="Attente.dc.html">Oui, préviens-moi</a>
+  <a class="lnk" href="Attente.dc.html">Pas maintenant</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

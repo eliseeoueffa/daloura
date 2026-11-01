@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mon profil</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./daloura.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Corben:wght@700&amp;family=Gochi+Hand&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr" style="padding-bottom: 0; gap: 14px">
+  <div class="top"><span class="logo"><img src="/_blob/beb8e6ca24911f9e6b87f82a931fc6f1" alt="">daloura</span></div>
+  <div class="row" style="gap: 14px">
+    <div class="face" style="width: 72px; height: 72px; box-shadow: 0 0 0 4px #FFFDF8, 0 0 0 6px #E8A93A"><img src="/_blob/0d9e4bf95aafa160ba825e551ce02903" alt="Ton selfie"></div>
+    <div style="min-width: 0"><h1 class="h1" style="font-size: 26px">Awa</h1><p class="small">awa.k@gmail.com</p></div>
+  </div>
+
+  <div class="card" style="flex-direction: row; align-items: center; justify-content: space-between; background: #F3DDE1; border: 0">
+    <div><p class="small" style="color: #49332F">Il te reste</p><p style="margin: 0; font-family: 'Corben', Georgia, serif; font-weight: 700; font-size: 22px; color: #702D43; font-variant-ligatures: none">2 essais</p></div>
+    <a class="btn" href="Recharger.dc.html" style="min-height: 44px">Recharger</a>
+  </div>
+
+  <div class="card" style="padding: 0; gap: 0">
+    <a href="Selfie.dc.html" style="display: flex; justify-content: space-between; align-items: center; padding: 14px; min-height: 52px; box-sizing: border-box; text-decoration: none; color: #49332F; border-bottom: 1px solid rgba(73,51,47,.1)"><span><b style="font-size: 15px">Mon selfie</b><br><span class="small">Le changer ou le supprimer</span></span><span style="color: #702D43">›</span></a>
+    <a href="Code-nouveau.dc.html" style="display: flex; justify-content: space-between; align-items: center; padding: 14px; min-height: 52px; box-sizing: border-box; text-decoration: none; color: #49332F; border-bottom: 1px solid rgba(73,51,47,.1)"><span><b style="font-size: 15px">Code secret</b><br><span class="small">Changer mon code à 4 chiffres</span></span><span style="color: #702D43">›</span></a>
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; min-height: 52px; box-sizing: border-box; border-bottom: 1px solid rgba(73,51,47,.1)"><span><b style="font-size: 15px">Notifications</b><br><span class="small">Aperçus prêts, votes du cercle</span></span><span role="img" aria-label="Activées" style="width: 46px; height: 28px; border-radius: 999px; background: #702D43; position: relative; flex: none"><span style="position: absolute; right: 3px; top: 3px; width: 22px; height: 22px; border-radius: 50%; background: #F5EFE6"></span></span></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; min-height: 52px; box-sizing: border-box; border-bottom: 1px solid rgba(73,51,47,.1)"><span><b style="font-size: 15px">Mes reçus</b><br><span class="small">Envoyés par email après chaque paiement</span></span></div>
+    <a href="Profil.dc.html" style="display: flex; justify-content: space-between; align-items: center; padding: 14px; min-height: 52px; box-sizing: border-box; text-decoration: none; color: #A1262E"><span><b style="font-size: 15px">Supprimer mes photos et aperçus</b><br><span class="small">Selfie, inspirations et aperçus, définitivement</span></span><span>›</span></a>
+  </div>
+
+  <a class="lnk" href="Main.dc.html">Me déconnecter</a>
+  <div class="grow"></div>
+  <nav class="tabbar" aria-label="Navigation">
+    <a href="Carnet.dc.html"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M9 3.5v17M12.5 8h3.5M12.5 11.5h3.5"></path></g></svg>Carnet</a>
+    <a href="Choix-essai.dc.html"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="9.5" rx="5.5" ry="6.5"></ellipse><path d="M12 16v5M9.5 21h5M10 8l2.2-2"></path></g></svg>Essayer</a>
+    <a class="on" href="Profil.dc.html"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.5"></circle><path d="M5 20c1-3.8 3.8-5.5 7-5.5s6 1.7 7 5.5"></path></g></svg>Profil</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
