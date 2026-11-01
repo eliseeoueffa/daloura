@@ -1,25 +1,93 @@
-// Généré depuis design/maquettes/Code-saisie.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
+// Connexion : email + code secret. Affiche aussi l'état « code incorrect » (maquette Code-erreur).
+// Rendu dynamique à l'étape 2 (exclu du script d'import).
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router";
 import { IMG } from "../assets/images";
+import { api, messageGenerique } from "../api/auth";
+import { useAuth } from "../auth/AuthContext";
+import { pluriel, useEmailTransmis } from "../auth/navigation";
+import { CodeCases, CodePad } from "../components/CodePin";
+import { Retour } from "../components/Retour";
+import {
+  emailValide,
+  EMAIL_MAX,
+  normaliserEmail,
+} from "../../shared/validation";
 
-export default function CodeSaisie() {
+export type ErreurConnexion =
+  | { type: "code"; essaisRestants?: number; prochainBlocageMinutes?: number }
+  | { type: "email" }
+  | { type: "autre"; texte: string };
+
+export function texteErreurCode(e: {
+  essaisRestants?: number;
+  prochainBlocageMinutes?: number;
+}): string {
+  if (e.essaisRestants === undefined)
+    return "Vérifie ton adresse email et ton code.";
+  const minutes = e.prochainBlocageMinutes ?? 2;
+  return `Il te reste ${pluriel(e.essaisRestants, "essai")}. Après, la connexion est bloquée ${pluriel(minutes, "minute")}.`;
+}
+
+export default function CodeSaisie({ demo }: { demo?: ErreurConnexion }) {
+  const navigate = useNavigate();
+  const { connectee } = useAuth();
+  const [email, setEmail] = useState(
+    useEmailTransmis() || (demo ? "awa.k@gmail.com" : ""),
+  );
+  const [code, setCode] = useState("");
+  const [erreur, setErreur] = useState<ErreurConnexion | null>(demo ?? null);
+  const [envoi, setEnvoi] = useState(false);
+
+  function changerCode(v: string) {
+    if (erreur?.type === "code") setErreur(null); // nouvelle saisie après une erreur
+    setCode(v);
+  }
+
+  async function seConnecter(e?: FormEvent) {
+    e?.preventDefault();
+    const m = normaliserEmail(email);
+    if (!emailValide(m)) return setErreur({ type: "email" });
+    if (code.length < 4) return;
+    setEnvoi(true);
+    const r = await api.connexion(m, code);
+    setEnvoi(false);
+    if (r.ok) {
+      connectee(r.data.utilisatrice);
+      navigate("/carnet", { replace: true });
+      return;
+    }
+    if (r.error === "bloquee") {
+      navigate("/code-bloque", { state: { email: m, jusqua: r.data.jusqua } });
+      return;
+    }
+    if (r.error === "code_incorrect") {
+      setCode("");
+      setErreur({
+        type: "code",
+        essaisRestants:
+          typeof r.data.essaisRestants === "number"
+            ? r.data.essaisRestants
+            : undefined,
+        prochainBlocageMinutes:
+          typeof r.data.prochainBlocageMinutes === "number"
+            ? r.data.prochainBlocageMinutes
+            : undefined,
+      });
+      return;
+    }
+    setErreur({ type: "autre", texte: messageGenerique(r.error) });
+  }
+
   return (
-    <div className="scr" style={{ gap: "14px" }}>
+    <form
+      className="scr"
+      style={{ gap: "14px" }}
+      onSubmit={seConnecter}
+      noValidate
+    >
       <div className="top">
-        <Link to="/" className="back">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M15 5l-7 7 7 7"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-          </svg>
-          Accueil
-        </Link>
+        <Retour to="/">Accueil</Retour>
         <span className="logo" style={{ fontSize: "18px" }}>
           <img
             src={IMG.logo}
@@ -33,42 +101,86 @@ export default function CodeSaisie() {
       <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
         <label className="label" htmlFor="mail">
           Ton adresse email
-        </label>{" "}
+        </label>
         <input
-          className="input"
+          className={erreur?.type === "email" ? "input bad" : "input"}
           id="mail"
           type="email"
-          defaultValue="awa.k@gmail.com"
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="done"
+          maxLength={EMAIL_MAX}
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            if (erreur?.type === "email") setErreur(null);
+          }}
+          aria-invalid={erreur?.type === "email" || undefined}
+          aria-describedby={erreur?.type === "email" ? "form-err" : undefined}
         />
       </div>
-      <p className="label">Ton code secret</p>
-      <div className="pin" aria-label="Code à 4 chiffres, 3 saisis">
-        <span className="on">•</span>
-        <span className="on">•</span>
-        <span className="on">•</span>
-        <span></span>
-      </div>
-      <Link to="/code-oublie" className="lnk" style={{ minHeight: "36px" }}>
+      <p className="label" id="code-label">
+        Ton code secret
+      </p>
+      <CodeCases
+        value={code}
+        erreur={erreur?.type === "code"}
+        label="Code à 4 chiffres"
+      />
+      {erreur && (
+        <div className="alert err" id="form-err" role="alert">
+          <span className="ic" aria-hidden="true">
+            !
+          </span>
+          <div>
+            {erreur.type === "code" && (
+              <>
+                <b>Ce code n'est pas le bon.</b>
+                {texteErreurCode(erreur)}
+              </>
+            )}
+            {erreur.type === "email" &&
+              "Cette adresse email ne semble pas complète. Vérifie-la."}
+            {erreur.type === "autre" && erreur.texte}
+          </div>
+        </div>
+      )}
+      <Link
+        to="/code-oublie"
+        state={{ email: normaliserEmail(email) }}
+        className="lnk"
+        style={{ minHeight: "36px" }}
+      >
         J'ai oublié mon code
       </Link>
       <div className="grow"></div>
-      <div className="pad" aria-hidden="true">
-        <span>1</span>
-        <span>2</span>
-        <span>3</span>
-        <span>4</span>
-        <span>5</span>
-        <span>6</span>
-        <span>7</span>
-        <span>8</span>
-        <span>9</span>
-        <span style={{ background: "transparent", border: "0" }}></span>
-        <span>0</span>
-        <span style={{ fontSize: "14px" }}>Effacer</span>
+      <CodePad value={code} onChange={changerCode} disabled={envoi} />
+      <div className="foot">
+        {erreur?.type === "code" ? (
+          <button
+            type="button"
+            className="btn"
+            onClick={() => {
+              setErreur(null);
+              setCode("");
+            }}
+          >
+            Réessayer
+          </button>
+        ) : (
+          <button
+            type="submit"
+            className="btn"
+            disabled={envoi || code.length < 4}
+            aria-busy={envoi || undefined}
+          >
+            Me connecter
+          </button>
+        )}
       </div>
-      <Link to="/carnet" className="btn">
-        Me connecter
-      </Link>
-    </div>
+    </form>
   );
 }

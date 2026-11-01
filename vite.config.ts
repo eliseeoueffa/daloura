@@ -3,6 +3,16 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  // En local, l'API tourne à part (npm run dev:api, port 8787). Le proxy retire l'en-tête
+  // Origin : le Worker voit une requête de même origine, comme en production.
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:8787",
+        configure: (proxy) => proxy.on("proxyReq", (req) => req.removeHeader("origin")),
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({

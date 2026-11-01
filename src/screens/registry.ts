@@ -1,7 +1,7 @@
 // Généré par scripts/import_maquettes.py : liste des écrans et de leurs routes.
 import { lazy } from "react";
 
-export type ScreenEntry = { path: string; title: string; Component: React.LazyExoticComponent<() => React.JSX.Element> };
+export type ScreenEntry = { path: string; title: string; Component: React.LazyExoticComponent<React.ComponentType> };
 
 export const SCREENS: ScreenEntry[] = [
   { path: "/apercu-detail", title: "Aperçu en grand", Component: lazy(() => import("./ApercuDetail")) },
@@ -55,4 +55,6 @@ export const SCREENS: ScreenEntry[] = [
   { path: "/vote-merci", title: "Merci (votante)", Component: lazy(() => import("./VoteMerci")) },
   { path: "/votes-zero", title: "Aucun vote", Component: lazy(() => import("./VotesZero")) },
   { path: "/vraie-photo", title: "Ajouter la vraie photo", Component: lazy(() => import("./VraiePhoto")) },
+  { path: "/email-a-verifier", title: "Vérifie ton email", Component: lazy(() => import("./EmailAVerifier")) },
+  { path: "/email-verifie", title: "Email vérifié", Component: lazy(() => import("./EmailVerifie")) },
 ];

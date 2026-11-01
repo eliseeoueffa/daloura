@@ -1,24 +1,25 @@
-// Généré depuis design/maquettes/Code-bloque.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
+// Connexion bloquée après 5 codes faux. Rendu dynamique à l'étape 2 (exclu du script d'import).
+import { Link, useLocation } from "react-router";
+import { pluriel } from "../auth/navigation";
+import { Retour } from "../components/Retour";
+
+export function texteBlocage(jusqua: unknown, now = Date.now()): string {
+  if (typeof jusqua !== "number" || jusqua <= now)
+    return "pendant quelques minutes";
+  return `pendant ${pluriel(Math.max(1, Math.ceil((jusqua - now) / 60_000)), "minute")}`;
+}
 
 export default function CodeBloque() {
+  const state = useLocation().state as {
+    email?: string;
+    jusqua?: number;
+  } | null;
+  // Sans état (relecture depuis /ecrans), on montre la durée du premier blocage.
+  const duree = state ? texteBlocage(state.jusqua) : "pendant 2 minutes";
   return (
     <div className="scr">
       <div className="top">
-        <Link to="/" className="back">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M15 5l-7 7 7 7"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-          </svg>
-          Accueil
-        </Link>
+        <Retour to="/">Accueil</Retour>
       </div>
       <div className="grow"></div>
       <div
@@ -57,17 +58,17 @@ export default function CodeBloque() {
         Trop d'essais
       </h1>
       <p className="p" style={{ textAlign: "center" }}>
-        Pour protéger tes selfies et ton carnet, la connexion est bloquée
-        pendant 15 minutes.
+        Pour protéger tes selfies et ton carnet, la connexion est bloquée{" "}
+        {duree}.
       </p>
       <p className="small" style={{ textAlign: "center" }}>
         Tu ne te souviens plus de ton code ? Reçois un lien pour en choisir un
         nouveau.
       </p>
       <div className="grow"></div>
-      <Link to="/code-oublie" className="btn">
+      <Link to="/code-oublie" state={{ email: state?.email }} className="btn">
         Recevoir un lien par email
-      </Link>{" "}
+      </Link>
       <Link to="/" className="lnk">
         Revenir plus tard
       </Link>

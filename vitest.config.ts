@@ -21,6 +21,14 @@ export default defineConfig(async () => {
             setupFiles: ["test/worker/setup.ts"],
           },
         },
+        {
+          test: {
+            name: "web",
+            environment: "jsdom",
+            include: ["test/web/**/*.test.{ts,tsx}"],
+            setupFiles: ["test/web/setup.ts"],
+          },
+        },
       ],
     },
   };

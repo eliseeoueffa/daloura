@@ -33,6 +33,20 @@ BLOBS = {
     "21cdbea27871cc142d05e37334af6bd5": "raies",
 }
 
+# Écrans rendus dynamiques à la main : le script ne les écrase plus (il garde leur route).
+EXCLUS = {
+    # Étape 2 : comptes
+    "Connexion", "Code-nouveau", "Code-confirmation", "Consentement", "Code-saisie",
+    "Code-oublie", "Code-mail-envoye", "Code-erreur", "Code-bloque", "Code-different",
+    "Email-existant",
+}
+
+# Écrans sans maquette, ajoutés au registre : (route, titre, composant).
+EXTRAS = [
+    ("/email-a-verifier", "Vérifie ton email", "EmailAVerifier"),
+    ("/email-verifie", "Email vérifié", "EmailVerifie"),
+]
+
 NUMERIC = {"maxLength", "aria-valuenow", "aria-valuemin", "aria-valuemax", "tabIndex", "rows", "cols"}
 VOID = {"img", "input", "br", "hr", "meta", "link", "source"}
 
@@ -240,13 +254,14 @@ def main() -> None:
     entries = []
     for stem, f in sorted(files_by_stem.items()):
         src, conv = convert(f, stems)
-        (OUT / f"{comp_of(stem)}.tsx").write_text(src, encoding="utf-8")
+        if stem not in EXCLUS:
+            (OUT / f"{comp_of(stem)}.tsx").write_text(src, encoding="utf-8")
         entries.append((stem, conv.title.strip()))
     reg = [
         "// Généré par scripts/import_maquettes.py : liste des écrans et de leurs routes.",
         'import { lazy } from "react";',
         "",
-        "export type ScreenEntry = { path: string; title: string; Component: React.LazyExoticComponent<() => React.JSX.Element> };",
+        "export type ScreenEntry = { path: string; title: string; Component: React.LazyExoticComponent<React.ComponentType> };",
         "",
         "export const SCREENS: ScreenEntry[] = [",
     ]
@@ -255,9 +270,13 @@ def main() -> None:
         reg.append(
             f"  {{ path: {js_str(route_of(stem))}, title: {js_str(title or stem)}, Component: lazy(() => import(\"./{comp}\")) }},"
         )
+    for path, title, comp in EXTRAS:
+        reg.append(
+            f"  {{ path: {js_str(path)}, title: {js_str(title)}, Component: lazy(() => import(\"./{comp}\")) }},"
+        )
     reg.append("];")
     (OUT / "registry.ts").write_text("\n".join(reg) + "\n", encoding="utf-8")
-    print(f"{len(entries)} écrans générés dans {OUT.relative_to(ROOT)}")
+    print(f"{len(entries) - len(EXCLUS)} écrans générés dans {OUT.relative_to(ROOT)} ({len(EXCLUS)} exclus, rendus dynamiques)")
 
 
 if __name__ == "__main__":
