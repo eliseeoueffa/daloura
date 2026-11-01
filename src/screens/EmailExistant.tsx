@@ -1,50 +1,43 @@
-// Généré depuis design/maquettes/Email-existant.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Inscription avec un email qui a déjà un compte. Rendu dynamique à l'étape 2.
 import { Link } from "react-router";
+import { useEmailTransmis } from "../auth/navigation";
+import { Retour } from "../components/Retour";
 
 export default function EmailExistant() {
+  const email = useEmailTransmis() || "awa.k@gmail.com"; // valeur d'exemple pour la relecture
   return (
     <div className="scr">
       <div className="top">
-        <Link to="/choix-essai" className="back">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M15 5l-7 7 7 7"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-          </svg>
-          Retour
-        </Link>
+        <Retour to="/choix-essai" />
       </div>
       <h1 className="h1">Ton aperçu est prêt à être créé</h1>
       <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
         <label className="label" htmlFor="mail">
           Ton adresse email
-        </label>{" "}
+        </label>
         <input
           className="input bad"
           id="mail"
           type="email"
-          defaultValue="awa.k@gmail.com"
+          value={email}
+          readOnly
           aria-invalid="true"
           aria-describedby="mail-err"
         />
       </div>
-      <div className="alert err" id="mail-err">
-        <span className="ic">!</span>
+      <div className="alert err" id="mail-err" role="alert">
+        <span className="ic" aria-hidden="true">
+          !
+        </span>
         <div>
           <b>Cet email a déjà un compte Daloura.</b>Connecte-toi avec ton code
           secret. L'essai offert a déjà été utilisé sur ce compte.
         </div>
       </div>
       <div className="grow"></div>
-      <Link to="/code-saisie" className="btn">
+      <Link to="/code-saisie" state={{ email }} className="btn">
         Me connecter
-      </Link>{" "}
+      </Link>
       <Link to="/connexion" className="lnk">
         Utiliser un autre email
       </Link>

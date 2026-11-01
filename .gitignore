@@ -1,0 +1,18 @@
+# Dépendances
+node_modules/
+
+# Builds
+dist/
+dev-dist/
+
+# Cloudflare / Wrangler
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+# Fichiers locaux
+*.local
+
+# Système
+.DS_Store

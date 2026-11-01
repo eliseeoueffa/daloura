@@ -9,6 +9,18 @@
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*"]
   },
-  "observability": { "enabled": true }
-  // Étape 2 : base D1 "daloura" (binding DB). Étape 3 : bucket R2 "daloura-media" (binding MEDIA).
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "daloura",
+      // À remplacer par l'identifiant de la base créée sur le compte d'Elisée
+      // (npx wrangler d1 create daloura). En local, n'importe quelle valeur marche.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ]
+  // Variables publiques (APP_URL, MAKISEND_URL, MAKISEND_TEMPLATE_*) : dans "vars" ou le tableau de bord.
+  // Clé MakiSend : npx wrangler secret put MAKISEND_API_KEY (jamais dans ce fichier).
+  // Étape 3 : bucket R2 "daloura-media" (binding MEDIA).
 }

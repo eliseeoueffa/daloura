@@ -1,24 +1,44 @@
-// Généré depuis design/maquettes/Code-oublie.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
+// Code oublié : demande du lien de réinitialisation. Rendu dynamique à l'étape 2.
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router";
+import { api, messageGenerique } from "../api/auth";
+import { useEmailTransmis } from "../auth/navigation";
+import { Retour } from "../components/Retour";
+import {
+  emailValide,
+  EMAIL_MAX,
+  normaliserEmail,
+} from "../../shared/validation";
 
 export default function CodeOublie() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState(useEmailTransmis());
+  const [erreur, setErreur] = useState<{
+    champ: boolean;
+    texte: string;
+  } | null>(null);
+  const [envoi, setEnvoi] = useState(false);
+
+  async function envoyer(e: FormEvent) {
+    e.preventDefault();
+    const m = normaliserEmail(email);
+    if (!emailValide(m))
+      return setErreur({
+        champ: true,
+        texte: "Cette adresse email ne semble pas complète. Vérifie-la.",
+      });
+    setErreur(null);
+    setEnvoi(true);
+    const r = await api.codeOublie(m);
+    setEnvoi(false);
+    if (r.ok) navigate("/code-mail-envoye", { state: { email: m } });
+    else setErreur({ champ: false, texte: messageGenerique(r.error) });
+  }
+
   return (
-    <div className="scr">
+    <form className="scr" onSubmit={envoyer} noValidate>
       <div className="top">
-        <Link to="/code-saisie" className="back">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M15 5l-7 7 7 7"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-          </svg>
-          Retour
-        </Link>
+        <Retour to="/code-saisie" />
       </div>
       <h1 className="h1">Tu as oublié ton code</h1>
       <p className="p">
@@ -28,28 +48,58 @@ export default function CodeOublie() {
       <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
         <label className="label" htmlFor="mail">
           Ton adresse email
-        </label>{" "}
+        </label>
         <input
-          className="input"
+          className={erreur?.champ ? "input bad" : "input"}
           id="mail"
           type="email"
-          defaultValue="awa.k@gmail.com"
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="send"
+          maxLength={EMAIL_MAX}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          aria-invalid={erreur?.champ || undefined}
+          aria-describedby={erreur ? "form-err" : undefined}
         />
       </div>
-      <div className="alert">
-        <span className="ic">i</span>
-        <div>
-          Tes selfies, tes aperçus et ton carnet restent protégés pendant ce
-          temps.
+      {erreur ? (
+        <div className="alert err" id="form-err" role="alert">
+          <span className="ic" aria-hidden="true">
+            !
+          </span>
+          <div>{erreur.texte}</div>
         </div>
-      </div>
+      ) : (
+        <div className="alert">
+          <span className="ic" aria-hidden="true">
+            i
+          </span>
+          <div>
+            Tes selfies, tes aperçus et ton carnet restent protégés pendant ce
+            temps.
+          </div>
+        </div>
+      )}
       <div className="grow"></div>
-      <Link to="/code-mail-envoye" className="btn">
+      <button
+        type="submit"
+        className="btn"
+        disabled={envoi}
+        aria-busy={envoi || undefined}
+      >
         Recevoir le lien
-      </Link>{" "}
-      <Link to="/code-saisie" className="lnk">
+      </button>
+      <Link
+        to="/code-saisie"
+        state={{ email: normaliserEmail(email) }}
+        className="lnk"
+      >
         Je me souviens de mon code
       </Link>
-    </div>
+    </form>
   );
 }

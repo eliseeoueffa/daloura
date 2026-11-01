@@ -6,11 +6,14 @@ import "@fontsource/gochi-hand/latin-400.css";
 import "@fontsource-variable/bricolage-grotesque/opsz.css";
 import "./styles/app.css";
 import App from "./App";
+import { AuthProvider } from "./auth/AuthContext";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 );
