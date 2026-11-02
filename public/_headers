@@ -1,3 +1,15 @@
+# La page et le service worker ne doivent jamais rester en cache : sinon l'ancienne version de l'appli reste affichée.
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/sw.js
+  Cache-Control: no-cache
+/registerSW.js
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache
+
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 

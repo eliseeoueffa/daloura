@@ -7,7 +7,8 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      injectRegister: "auto",
+      // Enregistrement fait dans src/main.tsx (registerSW) : vérifie les nouvelles versions et recharge.
+      injectRegister: false,
       includeAssets: ["favicon.svg", "apple-touch-icon.png"],
       manifest: {
         name: "Daloura",
@@ -27,6 +28,9 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Nouvelle version : prend la main tout de suite sur les pages ouvertes (puis registerSW recharge).
+        clientsClaim: true,
+        skipWaiting: true,
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/api\//],
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
