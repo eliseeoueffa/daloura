@@ -1,8 +1,27 @@
-// Généré depuis design/maquettes/Code-oublie.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Code-oublie.dc.html.
+// Envoie le lien « nouveau code » par email (MakiSend, via /api/compte/code-oublie).
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { api, brouillon, messageErreur } from "../lib/compte";
+import { emailValide, normaliserEmail } from "../lib/emails";
 
 export default function CodeOublie() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState(brouillon.email);
+  const [erreur, setErreur] = useState<string | null>(null);
+  const [occupe, setOccupe] = useState(false);
+
+  async function envoyer() {
+    const e = normaliserEmail(email);
+    if (!emailValide(e)) return setErreur(messageErreur("email_invalide"));
+    setOccupe(true);
+    const r = await api("/code-oublie", { email: e });
+    setOccupe(false);
+    if (!r.ok) return setErreur(messageErreur(r.error));
+    brouillon.email = e;
+    navigate("/code-mail-envoye");
+  }
+
   return (
     <div className="scr">
       <div className="top">
@@ -30,10 +49,18 @@ export default function CodeOublie() {
           Ton adresse email
         </label>{" "}
         <input
-          className="input"
+          className={erreur ? "input bad" : "input"}
           id="mail"
           type="email"
-          defaultValue="awa.k@gmail.com"
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          placeholder="ton.email@exemple.com"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.currentTarget.value);
+            setErreur(null);
+          }}
         />
       </div>
       <div className="alert">
@@ -43,10 +70,16 @@ export default function CodeOublie() {
           temps.
         </div>
       </div>
+      {erreur && (
+        <div className="alert err" role="alert">
+          <span className="ic">!</span>
+          <div>{erreur}</div>
+        </div>
+      )}
       <div className="grow"></div>
-      <Link to="/code-mail-envoye" className="btn">
+      <button type="button" className="btn" onClick={envoyer} disabled={occupe}>
         Recevoir le lien
-      </Link>{" "}
+      </button>{" "}
       <Link to="/code-saisie" className="lnk">
         Je me souviens de mon code
       </Link>

@@ -1,8 +1,10 @@
-// Généré depuis design/maquettes/Email-existant.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Email-existant.dc.html.
+// Affiché quand l'email saisi sur Connexion a déjà un compte.
+import { Link, Navigate } from "react-router";
+import { brouillon } from "../lib/compte";
 
 export default function EmailExistant() {
+  if (!brouillon.email) return <Navigate to="/connexion" replace />;
   return (
     <div className="scr">
       <div className="top">
@@ -29,7 +31,8 @@ export default function EmailExistant() {
           className="input bad"
           id="mail"
           type="email"
-          defaultValue="awa.k@gmail.com"
+          value={brouillon.email}
+          readOnly
           aria-invalid="true"
           aria-describedby="mail-err"
         />

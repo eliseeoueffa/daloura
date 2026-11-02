@@ -3,8 +3,41 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-    <title>Daloura · Vois-toi avant de changer</title>
-    <meta name="description" content="Essaie une coiffure sur ton visage avant d'aller au salon, et laisse tes copines t'aider à choisir." />
+    <title>Daloura · Essaie une coiffure sur ton visage avant le salon</title>
+    <meta name="description" content="Knotless, fulani, bantu knots, locks… Ajoute la coiffure qui te fait envie, prends un selfie et vois le look sur ton visage avant d'aller au salon. Ton cercle vote, tu gardes le carnet de tes coiffures." />
+    <link rel="canonical" href="%VITE_SITE_URL%/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="author" content="Lixali Studio SAS" />
+    <!-- Aperçu des liens partagés (WhatsApp, Facebook, X, LinkedIn…) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Daloura" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:url" content="%VITE_SITE_URL%/" />
+    <meta property="og:title" content="Daloura · Vois-toi avant de changer de coiffure" />
+    <meta property="og:description" content="Essaie une coiffure sur ton visage avant d'aller au salon, et laisse ton cercle t'aider à choisir." />
+    <meta property="og:image" content="%VITE_SITE_URL%/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Daloura : trois polaroïds d'une même personne en fulani, bantu knots et knotless" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Daloura · Vois-toi avant de changer de coiffure" />
+    <meta name="twitter:description" content="Essaie une coiffure sur ton visage avant d'aller au salon, et laisse ton cercle t'aider à choisir." />
+    <meta name="twitter:image" content="%VITE_SITE_URL%/og-image.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Daloura",
+        "url": "%VITE_SITE_URL%/",
+        "description": "Essaie une coiffure sur ton visage avant d'aller au salon, fais voter ton cercle et garde le carnet de tes coiffures.",
+        "applicationCategory": "LifestyleApplication",
+        "operatingSystem": "Android, iOS, Web",
+        "inLanguage": "fr",
+        "image": "%VITE_SITE_URL%/og-image.png",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "XOF", "description": "Premier essai offert" },
+        "publisher": { "@type": "Organization", "name": "Lixali Studio SAS", "url": "https://lixalistudio.tech" }
+      }
+    </script>
     <meta name="theme-color" content="#F5EFE6" />
     <meta name="color-scheme" content="light" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,6 +49,10 @@
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>Daloura · Vois-toi avant de changer</h1>
+      <p>Essaie une coiffure sur ton visage avant d'aller au salon, et laisse ton cercle t'aider à choisir. Active JavaScript pour utiliser l'application.</p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

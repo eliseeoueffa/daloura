@@ -18,6 +18,7 @@
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
     "@fontsource/corben": "^5.3.0",
     "@fontsource/gochi-hand": "^5.3.0",
+    "better-auth": "^1.7.15",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router": "^8.5.1"

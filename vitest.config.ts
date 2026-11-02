@@ -9,7 +9,7 @@ export default defineConfig(async () => {
     plugins: [
       cloudflareTest({
         wrangler: { configPath: "./wrangler.jsonc" },
-        miniflare: { bindings: { TEST_MIGRATIONS: migrations } },
+        miniflare: { bindings: { TEST_MIGRATIONS: migrations, MAKISEND_API_KEY: "mk_test", BETTER_AUTH_SECRET: "secret-de-test-assez-long-pour-better-auth-0123456789" } },
       }),
     ],
     test: { include: ["worker/test/**/*.test.ts"], setupFiles: ["./worker/test/setup.ts"] },

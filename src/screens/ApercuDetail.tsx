@@ -3,7 +3,7 @@
 // l'illustration de la coiffure tant que l'IA n'est pas branchée.
 import { Link, useSearchParams } from "react-router";
 import { PhotoInspiration } from "../components/PhotoInspiration";
-import { useLooks } from "../lib/essai";
+import { STYLE_PHOTO, useApercusReels, useLooks } from "../lib/essai";
 import { voteAutorise } from "../lib/perles";
 
 export default function ApercuDetail() {
@@ -11,6 +11,7 @@ export default function ApercuDetail() {
   const [params] = useSearchParams();
   const i = Math.min(Math.max(Number(params.get("i")) || 1, 1), looks.length);
   const look = looks[i - 1];
+  const { de: apercuReel } = useApercusReels();
   const n = looks.length;
   return (
     <div className="scr">
@@ -36,8 +37,9 @@ export default function ApercuDetail() {
         <div className="pola" style={{ padding: "10px 10px 0" }}>
           <div className="ph bg-sun" style={{ aspectRatio: "1 / 1.12" }}>
             <img
-              src={look.img}
+              src={apercuReel(look.slug)?.url ?? look.img}
               alt={`Aperçu : toi en ${look.nom.toLowerCase()}`}
+              style={apercuReel(look.slug)?.url ? STYLE_PHOTO : undefined}
             />
           </div>
           <div className="cap" style={{ fontSize: "19px" }}>

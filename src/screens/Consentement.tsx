@@ -1,9 +1,17 @@
-// Généré depuis design/maquettes/Consentement.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
-import { IMG } from "../assets/images";
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Consentement.dc.html.
+// La case n'est pas cochée d'avance : l'accord doit être un vrai choix. Une fois donné, les photos
+// (selfie, inspirations) peuvent partir vers le serveur (src/lib/envoi.ts).
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { enregistrerConsentement } from "../lib/compte";
+import { useConsentement, useSelfieAffiche } from "../lib/photos";
 
 export default function Consentement() {
+  const navigate = useNavigate();
+  const { selfie, selfieStyle } = useSelfieAffiche();
+  const { consentement, donner } = useConsentement();
+  const [accepte, setAccepte] = useState(false);
+  const coche = accepte || consentement !== null;
   return (
     <div className="scr">
       <div className="top">
@@ -27,7 +35,7 @@ export default function Consentement() {
           style={{ width: "84px", transform: "rotate(-5deg)", flex: "none" }}
         >
           <div className="ph bg-rose">
-            <img src={IMG.selfie} alt="" />
+            <img src={selfie} alt="" style={selfieStyle} />
           </div>
           <div className="cap" style={{ fontSize: "13px" }}>
             mon selfie
@@ -74,7 +82,8 @@ export default function Consentement() {
         <input
           id="ok"
           type="checkbox"
-          defaultChecked
+          checked={coche}
+          onChange={(e) => setAccepte(e.currentTarget.checked)}
           style={{
             width: "22px",
             height: "22px",
@@ -85,10 +94,20 @@ export default function Consentement() {
         />{" "}
         <span>J'accepte que mon selfie serve à créer mes aperçus.</span>{" "}
       </label>{" "}
-      <Link to="/notifications" className="btn">
+      <button
+        type="button"
+        className="btn"
+        disabled={!coche}
+        onClick={async () => {
+          if (consentement === null) await donner();
+          // Connectée : l'accord est aussi enregistré (daté) sur le serveur.
+          await enregistrerConsentement();
+          navigate("/notifications");
+        }}
+      >
         Créer mon aperçu
-      </Link>{" "}
-      <Link to="/consentement" className="lnk">
+      </button>{" "}
+      <Link to="/confidentialite" className="lnk">
         Lire la politique de confidentialité
       </Link>
     </div>

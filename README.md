@@ -7,7 +7,9 @@ Web app mobile (PWA) : vois une coiffure sur ton visage avant d'aller au salon, 
 - **Front** : React + Vite + TypeScript, PWA installable (`vite-plugin-pwa`).
 - **API** : Cloudflare Worker (`worker/index.ts`), qui sert aussi les fichiers de l'appli.
 - **Base** : Cloudflare D1 `daloura` (binding `DB`), schéma dans `migrations/`.
-- **À venir** : R2 (photos), Queues (aperçus), MakiSend (emails), Itaja (paiement), Three.js (Hair Recap seulement).
+- **Photos** : Cloudflare R2, bucket privé `daloura-media` (binding `MEDIA`).
+- **Emails** : MakiSend (`https://makisend.elisee.workers.dev`), pour le lien « code oublié ».
+- **À venir** : IA et Queues (aperçus), Itaja (paiement), Three.js (Hair Recap seulement).
 
 ## Lancer en local
 
@@ -45,14 +47,20 @@ de la séance et les stickers peints.
 1. Cloudflare → **Workers & Pages** → **Créer** → **Importer un dépôt** → `daloura`.
 2. Commande de build : `npm run build` · Commande de déploiement : `npx wrangler deploy`.
 3. Chaque push sur `main` redéploie l'appli.
+4. Secret Better Auth (une seule fois) : même endroit, type **Secret**, nom `BETTER_AUTH_SECRET`, valeur : une longue
+   suite de caractères aléatoires (au moins 32). Sans lui, la création de compte et la connexion répondent une erreur.
+5. Clé MakiSend (une seule fois) : Worker `daloura` → **Paramètres** → **Variables et secrets** → **Ajouter**,
+   type **Secret**, nom `MAKISEND_API_KEY`. Sans elle, « code oublié » affiche « L'email n'a pas pu partir ».
+6. R2 (une seule fois) : Cloudflare → **R2** → activer R2 si demandé → **Créer un bucket** nommé `daloura-media`
+   (emplacement : Europe de l'Ouest si proposé, accès public désactivé). `/api/health` doit répondre `"media":"ok"`.
 
 Les clés (MakiSend, Itaja…) se mettent dans les **réglages du Worker** (variables secrètes), jamais dans le code.
 
 ## Étapes
 
 1. ✅ Fondations : PWA, design system, tous les écrans navigables.
-2. Comptes : email + code à 4 chiffres, réinitialisation par email (MakiSend), blocage.
-3. Photos : selfie et inspirations vers R2 (liens signés, bucket privé, suppression automatique).
+2. ✅ Comptes : email + code à 4 chiffres, réinitialisation par email (MakiSend), blocage.
+3. ✅ Photos : selfie et inspirations vers R2 (liens signés, bucket privé, suppression automatique).
 4. Essai : générateur d'aperçus factice (IA branchée plus tard), essai offert, notification.
 5. Vote du cercle : lien WhatsApp, vote sans compte, résultats.
 6. Paiement Itaja : sachets de perles, retour, crédit (logique des perles déjà prête : `worker/perles.ts`).

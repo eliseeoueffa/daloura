@@ -1,8 +1,17 @@
-// Généré depuis design/maquettes/Code-bloque.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
-import { Link } from "react-router";
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Code-bloque.dc.html.
+// Affiché après 3 codes faux ; ?jusqua= donne l'heure de fin du blocage.
+import { Link, useSearchParams } from "react-router";
 
 export default function CodeBloque() {
+  const [params] = useSearchParams();
+  const jusqua = Number(params.get("jusqua"));
+  const heure =
+    jusqua > Date.now()
+      ? new Date(jusqua).toLocaleTimeString("fr-FR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : null;
   return (
     <div className="scr">
       <div className="top">
@@ -59,6 +68,7 @@ export default function CodeBloque() {
       <p className="p" style={{ textAlign: "center" }}>
         Pour protéger tes selfies et ton carnet, la connexion est bloquée
         pendant 15 minutes.
+        {heure && ` Tu pourras réessayer à ${heure}.`}
       </p>
       <p className="small" style={{ textAlign: "center" }}>
         Tu ne te souviens plus de ton code ? Reçois un lien pour en choisir un

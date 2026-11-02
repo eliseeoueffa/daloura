@@ -17,6 +17,39 @@ PWA mobile (React + Vite + TypeScript) servie par un Cloudflare Worker (`worker/
   maquette (`design/maquettes/*.dc.html`) mise à jour en même temps.
 - Les clés (MakiSend, Itaja…) vont dans les secrets du Worker, jamais dans le code.
 
+## Comptes
+
+- **Better Auth** (`worker/auth.ts`, comme MakiSend), branché directement sur D1 : tables `auth_user`,
+  `auth_session`, `auth_account`, `auth_verification` (migration 0003, dates en texte ISO). Notre table `users`
+  garde le profil de l'appli (perles, blocage…) sous le même identifiant, créée par un hook à l'inscription.
+  Secret `BETTER_AUTH_SECRET` obligatoire (sinon `/api/compte/*` répond 503). Le gestionnaire HTTP de Better Auth
+  n'est pas exposé : seules nos routes `/api/compte/*` (`worker/comptes.ts`, tests `worker/test/comptes.test.ts`)
+  l'appellent, et `src/lib/compte.ts` côté appli.
+- Email + code secret à 4 chiffres = mot de passe Better Auth, haché en PBKDF2-SHA256 natif (`worker/codes.ts`,
+  20 000 itérations : c'est le blocage, pas le hachage, qui protège un code de 4 chiffres). 3 codes faux de suite :
+  connexion bloquée 15 minutes. Session : cookie de Better Auth (`daloura.session_token`, HttpOnly, Secure en HTTPS,
+  SameSite=Lax), 90 jours. Les requêtes POST doivent être en JSON.
+- Code oublié : réinitialisation Better Auth, lien envoyé par email via **MakiSend** (`MAKISEND_URL` dans
+  `wrangler.jsonc`, clé dans le secret `MAKISEND_API_KEY` du Worker), valable 30 minutes, une seule fois,
+  3 envois par heure ; le nouveau code ferme toutes les anciennes sessions.
+- À l'inscription : 3 perles offertes (une fois par compte et par téléphone, `offrirBienvenue`).
+- Le parcours en cours (email, premier code, jeton du lien) reste en mémoire (`brouillon`), jamais sur le téléphone.
+- `useSolde()` renvoie le vrai solde quand elle est connectée.
+- Les écrans sont chargés à la demande : dans les tests Playwright, attendre que l'écran suivant soit affiché
+  avant de taper (sinon les touches arrivent sur l'écran précédent).
+
+## Légal et référencement
+
+- Pages `/mentions-legales`, `/confidentialite`, `/conditions` (`src/pages/`, mise en page `PageLegale`), éditeur
+  **Lixali Studio SAS**, RGPD + Code du numérique béninois (loi n° 2017-20, APDP). Infos de la société dans
+  `src/lib/societe.ts` : une valeur `null` s'affiche « à compléter » surlignée. Changer `MAJ_TEXTES_LEGAUX` à chaque
+  modification des textes. Toute nouvelle donnée collectée ou nouveau prestataire doit y être ajouté.
+- Référencement : balises dans `index.html` (description, Open Graph, JSON-LD), `robots.txt` et `sitemap.xml` générés
+  au build (`vite.config.ts`, adresse `VITE_SITE_URL` dans `.env`), image de partage et captures d'installation
+  générées par `scripts/generer_visuels.cjs`.
+- Mise à jour de l'appli : `registerSW` (src/main.tsx) + `clientsClaim`/`skipWaiting` : la page se recharge seule
+  sur la nouvelle version ; `public/_headers` interdit le cache de la page et de `sw.js`.
+
 ## Offres
 
 Daloura n'a pas d'abonnement. La monnaie est la **perle** (comme les perles dorées des tresses) :
@@ -76,5 +109,34 @@ My Hair Recap, payé en perles sans Itaja : 3 mois = 20, 6 mois = 40, 12 mois = 
 - Prendre une photo : sur écran tactile, l'appareil photo du système (`<input capture="user">`) ; sur ordinateur,
   la webcam dans la page (`getUserMedia`), avec un message clair si l'accès est refusé.
 - `<ChoixFichier>` (`src/components/ChoixFichier.tsx`) ouvre la galerie ou l'appareil photo.
+- **Envoi vers R2** (`src/lib/envoi.ts` → `worker/photos.ts`, binding `MEDIA`, bucket privé `daloura-media`) :
+  seulement quand elle est **connectée** et a donné son accord (écran Consentement, enregistré aussi sur le
+  serveur : `users.selfie_consent_at`). Le téléphone fait foi : à chaque changement, au démarrage, à la connexion
+  et au retour du réseau, on envoie ce qui manque et on efface ce qui a été retiré (réessais espacés si échec).
+  Photos rangées sous `comptes/<userId>/selfie.jpg`, `…/inspirations/<coiffure>.jpg`, `…/essais/<essai>/…`
+  (copie figée au lancement) et `…/apercus/<aperçu>.jpg`. L'ancien dossier par téléphone (`appareils/…`) est vidé
+  à la connexion et purgé après 30 jours. Le Worker vérifie les octets (JPEG, PNG, WebP), la taille (5 Mo max)
+  et la coiffure (table `styles`). Tests : `worker/test/photos.test.ts`.
+
+## Essais et aperçus
+
+- `worker/essais.ts` : `POST /api/essais { coiffures }` (connectée, consentement, photos déjà envoyées) débite les
+  perles (`lancerEssai`), fige une copie des photos, puis génère les aperçus en arrière-plan (`ctx.waitUntil`) ;
+  `GET /api/essais/<id>` (statut, aperçus) et `GET /api/essais/<id>/apercus/<aperçu>` (l'image). Tests :
+  `worker/test/essais.test.ts`.
+- `worker/generation.ts` : générateur **interchangeable**. Aujourd'hui `provisoire` (sans IA : l'aperçu est la photo
+  d'inspiration, l'appli affiche « Aperçu provisoire »). Brancher l'IA = ajouter un générateur et le choisir dans
+  `choisirGenerateur()` ; pour des générations longues, passer par Cloudflare Queues. Échec d'un aperçu =
+  `failed` + perles rendues (`rembourserGeneration`).
+- Appli : l'écran Attente envoie les photos (`synchroniserMaintenant`), lance l'essai (`src/lib/essaiServeur.ts`,
+  identifiant gardé dans `localStorage`), suit l'avancement puis ouvre Aperçu offert / Aperçus / Échec-création.
+  Aperçus, Aperçu offert et Aperçu en grand montrent les vrais aperçus (`useApercusReels`).
+
+## Suppressions automatiques
+
+- `worker/purge.ts`, chaque nuit (cron dans `wrangler.jsonc`) : sessions et liens expirés, votes 12 mois après la
+  fermeture, comptes sans connexion depuis 2 ans (`users.derniere_connexion`, avec leurs photos ; paiements
+  archivés sans lien dans `paiements_archives`), photos `appareils/…` de plus de 30 jours. **Garder ces durées
+  alignées avec la politique de confidentialité.**
 - La caméra exige HTTPS (ou `localhost`) : en local sur téléphone via l'IP de l'ordinateur, elle ne s'ouvre pas,
   utiliser le lien Cloudflare.

@@ -1,13 +1,23 @@
 // Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Profil.dc.html.
 // Chiffres : src/lib/perles.ts. Solde : src/lib/solde.ts.
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { IMG } from "../assets/images";
+import { LiensLegaux } from "../components/PageLegale";
 import { Perle } from "../components/Perle";
+import { deconnecter, useCompte } from "../lib/compte";
+import { effacerDuServeur } from "../lib/envoi";
 import { effacerPhotos, useSelfieAffiche } from "../lib/photos";
 import { useSolde } from "../lib/solde";
 
 export default function Profil() {
+  const navigate = useNavigate();
+  const { compte } = useCompte();
+  // Pas encore de prénom dans le compte : on prend le début de l'email (« awa.k@… » → « Awa »).
+  const debut =
+    (compte?.email ?? "awa.k@gmail.com").split("@")[0].split(/[._\-+\d]/)[0] ||
+    "toi";
+  const prenom = debut.charAt(0).toUpperCase() + debut.slice(1);
   const { selfie, selfieStyle } = useSelfieAffiche();
   const [efface, setEfface] = useState(false);
   return (
@@ -31,9 +41,11 @@ export default function Profil() {
         </div>
         <div style={{ minWidth: "0" }}>
           <h1 className="h1" style={{ fontSize: "26px" }}>
-            Awa
+            {prenom}
           </h1>
-          <p className="small">awa.k@gmail.com</p>
+          <p className="small" style={{ overflowWrap: "anywhere" }}>
+            {compte?.email ?? "awa.k@gmail.com"}
+          </p>
         </div>
       </div>
       <Link
@@ -182,10 +194,10 @@ export default function Profil() {
           onClick={async () => {
             if (
               window.confirm(
-                "Supprimer ton selfie, tes inspirations et tes aperçus de ce téléphone ? C'est définitif.",
+                "Supprimer ton selfie, tes inspirations et tes aperçus, sur ce téléphone et sur nos serveurs ? C'est définitif.",
               )
             ) {
-              await effacerPhotos();
+              await Promise.all([effacerPhotos(), effacerDuServeur()]);
               setEfface(true);
             }
           }}
@@ -218,9 +230,23 @@ export default function Profil() {
           <span>›</span>
         </button>
       </div>
-      <Link to="/" className="lnk">
-        Me déconnecter
-      </Link>
+      {compte ? (
+        <button
+          type="button"
+          className="lnk"
+          onClick={async () => {
+            await deconnecter();
+            navigate("/", { replace: true });
+          }}
+        >
+          Me déconnecter
+        </button>
+      ) : (
+        <Link to="/code-saisie" className="lnk">
+          Me connecter
+        </Link>
+      )}
+      <LiensLegaux />
       <div className="grow"></div>
       <nav className="tabbar" aria-label="Navigation">
         <Link to="/carnet">
