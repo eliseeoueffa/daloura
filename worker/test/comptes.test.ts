@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { BLOCAGE_MS, COOKIE, hacherCode, verifierCode } from "../comptes";
+import { BLOCAGE_MS, hacherCode, verifierCode } from "../comptes";
+const COOKIE = "__Secure-daloura.session_token";
 import worker from "../index";
 import { PERLES_BIENVENUE } from "../../src/lib/perles";
 
@@ -19,7 +20,11 @@ function appel(chemin: string, corps?: unknown, opts: { cookie?: string; apparei
   });
   return worker.fetch(req as Request<unknown, IncomingRequestCfProperties>, env as never);
 }
-const cookieDe = (r: Response) => (r.headers.get("set-cookie") ?? "").split(";")[0];
+const cookieDe = (r: Response) =>
+  r.headers
+    .getSetCookie()
+    .map((c) => c.split(";")[0])
+    .join("; ");
 
 // Faux MakiSend : on garde les emails « envoyés ».
 let emails: { url: string; auth: string | null; corps: { to: string; subject: string; html: string; text: string } }[];
@@ -56,10 +61,17 @@ describe("inscription", () => {
     const { r, email, cookie } = await inscrire();
     expect(r.status).toBe(201);
     expect(await r.json()).toMatchObject({ email, perles: PERLES_BIENVENUE });
-    expect(r.headers.get("set-cookie")).toMatch(new RegExp(`^${COOKIE}=.+HttpOnly; Secure; SameSite=Lax`));
+    expect(r.headers.get("set-cookie")).toMatch(new RegExp(`^${COOKIE.replace(".", "\\.")}=.+`));
+    expect(r.headers.get("set-cookie")!.toLowerCase()).toMatch(/httponly/);
+    expect(r.headers.get("set-cookie")!.toLowerCase()).toMatch(/secure/);
+    expect(r.headers.get("set-cookie")!.toLowerCase()).toMatch(/samesite=lax/);
     expect(await (await appel("/moi", undefined, { cookie })).json()).toEqual({ email, perles: PERLES_BIENVENUE });
-    const u = await env.DB.prepare("SELECT code_hash FROM users WHERE email = ?").bind(email).first<{ code_hash: string }>();
-    expect(u!.code_hash.startsWith("pbkdf2$")).toBe(true);
+    const u = await env.DB.prepare(
+      "SELECT a.password FROM auth_account a JOIN auth_user u ON u.id = a.user_id WHERE u.email = ?",
+    )
+      .bind(email)
+      .first<{ password: string }>();
+    expect(u!.password.startsWith("pbkdf2$")).toBe(true);
   });
 
   it("refuse un email déjà utilisé (même en majuscules)", async () => {
@@ -177,7 +189,9 @@ describe("code oublié", () => {
     const { email } = await inscrire();
     await appel("/code-oublie", { email });
     const jeton = /jeton=([\w-]+)/.exec(emails[0].corps.text)![1];
-    await env.DB.prepare("UPDATE email_codes SET expires_at = ? WHERE email = ?").bind(Date.now() - 1, email).run();
+    await env.DB.prepare("UPDATE auth_verification SET expires_at = ? WHERE identifier LIKE 'reset-password:%'")
+      .bind(new Date(Date.now() - 1000).toISOString())
+      .run();
     expect((await appel("/nouveau-code", { jeton, code: "1111" })).status).toBe(400);
     expect((await appel("/nouveau-code", { jeton: "invente", code: "1111" })).status).toBe(400);
   });
@@ -197,7 +211,11 @@ describe("code oublié", () => {
     const { email } = await inscrire();
     makisendRepond = 500;
     expect((await appel("/code-oublie", { email })).status).toBe(503);
-    const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM email_codes WHERE email = ?").bind(email).first<{ n: number }>();
+    const n = await env.DB.prepare(
+      "SELECT COUNT(*) AS n FROM auth_verification v JOIN users u ON u.id = v.value WHERE u.email = ?",
+    )
+      .bind(email)
+      .first<{ n: number }>();
     expect(n!.n).toBe(0);
   });
 });

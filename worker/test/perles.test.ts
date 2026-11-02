@@ -27,7 +27,7 @@ async function nouveauCompte(perles = 0): Promise<string> {
   const id = crypto.randomUUID();
   const now = Date.now();
   await db
-    .prepare("INSERT INTO users (id, email, code_hash, created_at, updated_at) VALUES (?, ?, 'x', ?, ?)")
+    .prepare("INSERT INTO users (id, email, created_at, updated_at) VALUES (?, ?, ?, ?)")
     .bind(id, `${id}@test.daloura`, now, now)
     .run();
   if (perles > 0) {

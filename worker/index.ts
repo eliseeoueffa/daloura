@@ -8,8 +8,9 @@ export interface Env {
   DB: D1Database;
   MEDIA: R2Bucket;
   MAKISEND_URL: string;
-  /** Secret du Worker (Cloudflare → daloura → Paramètres → Variables et secrets). */
+  /** Secrets du Worker (Cloudflare → daloura → Paramètres → Variables et secrets). */
   MAKISEND_API_KEY?: string;
+  BETTER_AUTH_SECRET?: string;
 }
 
 const json = (data: unknown, status = 200) =>
