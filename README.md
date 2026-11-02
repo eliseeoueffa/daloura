@@ -47,9 +47,11 @@ de la séance et les stickers peints.
 1. Cloudflare → **Workers & Pages** → **Créer** → **Importer un dépôt** → `daloura`.
 2. Commande de build : `npm run build` · Commande de déploiement : `npx wrangler deploy`.
 3. Chaque push sur `main` redéploie l'appli.
-4. Clé MakiSend (une seule fois) : Worker `daloura` → **Paramètres** → **Variables et secrets** → **Ajouter**,
+4. Secret Better Auth (une seule fois) : même endroit, type **Secret**, nom `BETTER_AUTH_SECRET`, valeur : une longue
+   suite de caractères aléatoires (au moins 32). Sans lui, la création de compte et la connexion répondent une erreur.
+5. Clé MakiSend (une seule fois) : Worker `daloura` → **Paramètres** → **Variables et secrets** → **Ajouter**,
    type **Secret**, nom `MAKISEND_API_KEY`. Sans elle, « code oublié » affiche « L'email n'a pas pu partir ».
-5. R2 (une seule fois) : Cloudflare → **R2** → activer R2 si demandé → **Créer un bucket** nommé `daloura-media`
+6. R2 (une seule fois) : Cloudflare → **R2** → activer R2 si demandé → **Créer un bucket** nommé `daloura-media`
    (emplacement : Europe de l'Ouest si proposé, accès public désactivé). `/api/health` doit répondre `"media":"ok"`.
 
 Les clés (MakiSend, Itaja…) se mettent dans les **réglages du Worker** (variables secrètes), jamais dans le code.

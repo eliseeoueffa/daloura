@@ -774,3 +774,61 @@ button:disabled {
   border: 2px solid #a1262e;
   color: #a1262e;
 }
+/* Pages légales */
+.legal h2 {
+  font-family: "Corben", Georgia, serif;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #702d43;
+  margin: 10px 0 0;
+  font-variant-ligatures: none;
+}
+.legal p,
+.legal li {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: #49332f;
+  overflow-wrap: anywhere;
+}
+.legal ul {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.legal a {
+  color: #702d43;
+}
+.legal table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.875rem;
+}
+.legal th,
+.legal td {
+  border: 1px solid rgba(73, 51, 47, 0.15);
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+.a-completer {
+  background: #e8a93a;
+  color: #49332f;
+  border-radius: 4px;
+  padding: 0 4px;
+  font-weight: 700;
+}
+.legal-liens {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  font-size: 0.8125rem;
+  padding: 8px 0;
+}
+.legal-liens a {
+  color: #702d43;
+  text-underline-offset: 3px;
+}

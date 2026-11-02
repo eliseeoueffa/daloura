@@ -104,7 +104,7 @@ export default function Consentement() {
       >
         Créer mon aperçu
       </button>{" "}
-      <Link to="/consentement" className="lnk">
+      <Link to="/confidentialite" className="lnk">
         Lire la politique de confidentialité
       </Link>
     </div>

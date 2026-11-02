@@ -19,18 +19,36 @@ PWA mobile (React + Vite + TypeScript) servie par un Cloudflare Worker (`worker/
 
 ## Comptes
 
-- `worker/comptes.ts` (routes `/api/compte/*`, tests `worker/test/comptes.test.ts`) et `src/lib/compte.ts` côté appli.
-- Email + code secret à 4 chiffres, haché en PBKDF2-SHA256 (100 000 itérations, sel). 3 codes faux de suite :
-  connexion bloquée 15 minutes. Session : cookie `__Host-daloura` HttpOnly/Secure/SameSite=Lax de 90 jours,
-  seule l'empreinte SHA-256 du jeton est en base. Les requêtes POST doivent être en JSON.
-- Code oublié : lien par email via **MakiSend** (`MAKISEND_URL` dans `wrangler.jsonc`, clé dans le secret
-  `MAKISEND_API_KEY` du Worker), valable 30 minutes, une seule fois, 3 envois par heure ; le nouveau code ferme
-  toutes les anciennes sessions.
+- **Better Auth** (`worker/auth.ts`, comme MakiSend), branché directement sur D1 : tables `auth_user`,
+  `auth_session`, `auth_account`, `auth_verification` (migration 0003, dates en texte ISO). Notre table `users`
+  garde le profil de l'appli (perles, blocage…) sous le même identifiant, créée par un hook à l'inscription.
+  Secret `BETTER_AUTH_SECRET` obligatoire (sinon `/api/compte/*` répond 503). Le gestionnaire HTTP de Better Auth
+  n'est pas exposé : seules nos routes `/api/compte/*` (`worker/comptes.ts`, tests `worker/test/comptes.test.ts`)
+  l'appellent, et `src/lib/compte.ts` côté appli.
+- Email + code secret à 4 chiffres = mot de passe Better Auth, haché en PBKDF2-SHA256 natif (`worker/codes.ts`,
+  20 000 itérations : c'est le blocage, pas le hachage, qui protège un code de 4 chiffres). 3 codes faux de suite :
+  connexion bloquée 15 minutes. Session : cookie de Better Auth (`daloura.session_token`, HttpOnly, Secure en HTTPS,
+  SameSite=Lax), 90 jours. Les requêtes POST doivent être en JSON.
+- Code oublié : réinitialisation Better Auth, lien envoyé par email via **MakiSend** (`MAKISEND_URL` dans
+  `wrangler.jsonc`, clé dans le secret `MAKISEND_API_KEY` du Worker), valable 30 minutes, une seule fois,
+  3 envois par heure ; le nouveau code ferme toutes les anciennes sessions.
 - À l'inscription : 3 perles offertes (une fois par compte et par téléphone, `offrirBienvenue`).
 - Le parcours en cours (email, premier code, jeton du lien) reste en mémoire (`brouillon`), jamais sur le téléphone.
 - `useSolde()` renvoie le vrai solde quand elle est connectée.
 - Les écrans sont chargés à la demande : dans les tests Playwright, attendre que l'écran suivant soit affiché
   avant de taper (sinon les touches arrivent sur l'écran précédent).
+
+## Légal et référencement
+
+- Pages `/mentions-legales`, `/confidentialite`, `/conditions` (`src/pages/`, mise en page `PageLegale`), éditeur
+  **Lixali Studio SAS**, RGPD + Code du numérique béninois (loi n° 2017-20, APDP). Infos de la société dans
+  `src/lib/societe.ts` : une valeur `null` s'affiche « à compléter » surlignée. Changer `MAJ_TEXTES_LEGAUX` à chaque
+  modification des textes. Toute nouvelle donnée collectée ou nouveau prestataire doit y être ajouté.
+- Référencement : balises dans `index.html` (description, Open Graph, JSON-LD), `robots.txt` et `sitemap.xml` générés
+  au build (`vite.config.ts`, adresse `VITE_SITE_URL` dans `.env`), image de partage et captures d'installation
+  générées par `scripts/generer_visuels.cjs`.
+- Mise à jour de l'appli : `registerSW` (src/main.tsx) + `clientsClaim`/`skipWaiting` : la page se recharge seule
+  sur la nouvelle version ; `public/_headers` interdit le cache de la page et de `sw.js`.
 
 ## Offres
 

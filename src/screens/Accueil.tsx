@@ -1,7 +1,8 @@
-// Généré depuis design/maquettes/Main.dc.html par scripts/import_maquettes.py.
-// Écran statique (fausses données) : à rendre dynamique dans les prochaines étapes.
+// Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Main.dc.html.
+// Ajout : liens vers les pages légales en bas.
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
+import { LiensLegaux } from "../components/PageLegale";
 
 export default function Accueil() {
   return (
@@ -81,6 +82,7 @@ export default function Accueil() {
       <p className="small" style={{ textAlign: "center" }}>
         Pas besoin de compte pour commencer.
       </p>
+      <LiensLegaux />
     </div>
   );
 }

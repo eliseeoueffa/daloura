@@ -56,6 +56,7 @@ MANUELS = {
     "Consentement",
     "Echec-creation",
     "Email-existant",
+    "Main",
     "Offres",
     "Paiement",
     "Paiement-attente",

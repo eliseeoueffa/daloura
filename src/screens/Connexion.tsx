@@ -90,6 +90,17 @@ export default function Connexion() {
         Pas de mot de passe : tu choisis un code secret à 4 chiffres à l'étape
         suivante.
       </p>
+      <p className="small">
+        En continuant, tu confirmes avoir 16 ans ou plus et tu acceptes les{" "}
+        <Link to="/conditions" style={{ color: "#702D43" }}>
+          conditions d'utilisation
+        </Link>{" "}
+        et la{" "}
+        <Link to="/confidentialite" style={{ color: "#702D43" }}>
+          politique de confidentialité
+        </Link>
+        .
+      </p>
       {erreur && (
         <div className="alert err" role="alert">
           <span className="ic">!</span>

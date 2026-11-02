@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { IMG } from "../assets/images";
+import { LiensLegaux } from "../components/PageLegale";
 import { Perle } from "../components/Perle";
 import { deconnecter, useCompte } from "../lib/compte";
 import { effacerDuServeur } from "../lib/envoi";
@@ -245,6 +246,7 @@ export default function Profil() {
           Me connecter
         </Link>
       )}
+      <LiensLegaux />
       <div className="grow"></div>
       <nav className="tabbar" aria-label="Navigation">
         <Link to="/carnet">
