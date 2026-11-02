@@ -1,4 +1,4 @@
-import { env } from "cloudflare:test";
+import { createExecutionContext, env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BLOCAGE_MS, hacherCode, verifierCode } from "../comptes";
 const COOKIE = "__Secure-daloura.session_token";
@@ -18,7 +18,7 @@ function appel(chemin: string, corps?: unknown, opts: { cookie?: string; apparei
     headers,
     body: corps === undefined ? undefined : JSON.stringify(corps),
   });
-  return worker.fetch(req as Request<unknown, IncomingRequestCfProperties>, env as never);
+  return worker.fetch(req as Request<unknown, IncomingRequestCfProperties>, env as never, createExecutionContext());
 }
 const cookieDe = (r: Response) =>
   r.headers
@@ -100,7 +100,7 @@ describe("inscription", () => {
       headers: { "content-type": "application/x-www-form-urlencoded" },
       body: "email=a@b.co&code=1234",
     });
-    expect((await worker.fetch(req as Request<unknown, IncomingRequestCfProperties>, env as never)).status).toBe(415);
+    expect((await worker.fetch(req as Request<unknown, IncomingRequestCfProperties>, env as never, createExecutionContext())).status).toBe(415);
   });
 });
 

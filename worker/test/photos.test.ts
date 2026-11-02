@@ -1,4 +1,4 @@
-import { env } from "cloudflare:test";
+import { createExecutionContext, env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
 import worker from "../index";
 import { TAILLE_MAX } from "../photos";
@@ -21,6 +21,7 @@ function appel(chemin: string, init: RequestInit & { appareil?: string } = {}) {
   return worker.fetch(
     req as Request<unknown, IncomingRequestCfProperties>,
     env as never,
+    createExecutionContext(),
   );
 }
 

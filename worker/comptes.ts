@@ -110,6 +110,7 @@ export async function compteConnecte(
  *   POST /api/compte/verifier-email { email }        → { existe }
  *   POST /api/compte/inscription   { email, code }   → { email, perles } + cookie
  *   POST /api/compte/connexion     { email, code }   → { email, perles } + cookie
+ *   POST /api/compte/consentement  {}                → accord pour le selfie, daté
  *   POST /api/compte/deconnexion
  *   GET  /api/compte/moi                             → { email, perles } | 401
  *   POST /api/compte/code-oublie   { email }         → { ok } (toujours, sauf panne d'envoi)
@@ -134,6 +135,17 @@ export async function routeComptes(request: Request, env: EnvComptes, chemin: st
   const corps = await corpsJson(request);
   if (!corps) return erreur("json_attendu", 415);
 
+  if (chemin === "/consentement") {
+    // Accord « J'accepte que mon selfie serve à créer mes aperçus » : daté, preuve du consentement.
+    const c = await compteConnecte(request, env);
+    if (!c) return erreur("non_connecte", 401);
+    await db
+      .prepare("UPDATE users SET selfie_consent_at = COALESCE(selfie_consent_at, ?) WHERE id = ?")
+      .bind(Date.now(), c.id)
+      .run();
+    return json({ ok: true });
+  }
+
   if (chemin === "/deconnexion") {
     const r = await auth.api.signOut({ headers: request.headers, asResponse: true }).catch(() => null);
     return json({ ok: true }, 200, r ? cookiesDe(r) : undefined);
@@ -154,7 +166,10 @@ export async function routeComptes(request: Request, env: EnvComptes, chemin: st
       .resetPassword({ body: { newPassword: corps.code, token: jeton }, headers: request.headers, asResponse: true })
       .catch(() => null);
     if (!r || !r.ok) return erreur("lien_invalide", 400);
-    await db.prepare("UPDATE users SET failed_attempts = 0, locked_until = NULL WHERE id = ?").bind(lien.id).run();
+    await db
+      .prepare("UPDATE users SET failed_attempts = 0, locked_until = NULL, derniere_connexion = ? WHERE id = ?")
+      .bind(Date.now(), lien.id)
+      .run();
     const s = await auth.api.signInEmail({
       body: { email: lien.email, password: corps.code },
       headers: request.headers,
@@ -183,6 +198,7 @@ export async function routeComptes(request: Request, env: EnvComptes, chemin: st
       throw r instanceof Error ? r : new Error(`inscription : ${r instanceof Response ? r.status : String(r)}`);
     }
     const u = await db.prepare("SELECT id FROM users WHERE email = ?").bind(email).first<{ id: string }>();
+    await db.prepare("UPDATE users SET derniere_connexion = ? WHERE id = ?").bind(Date.now(), u!.id).run();
     const cadeau = await offrirBienvenue(db, u!.id, appareilDe(request));
     return json(
       { email, perles: cadeau.ok ? cadeau.perles : 0, cadeau: cadeau.ok ? "offert" : cadeau.raison },
@@ -204,7 +220,10 @@ export async function routeComptes(request: Request, env: EnvComptes, chemin: st
       .signInEmail({ body: { email, password: corps.code }, headers: request.headers, asResponse: true })
       .catch(() => null);
     if (r?.ok) {
-      await db.prepare("UPDATE users SET failed_attempts = 0, locked_until = NULL WHERE id = ?").bind(u.id).run();
+      await db
+        .prepare("UPDATE users SET failed_attempts = 0, locked_until = NULL, derniere_connexion = ? WHERE id = ?")
+        .bind(now, u.id)
+        .run();
       return json({ email, perles: u.perles }, 200, cookiesDe(r));
     }
     // Compteur atomique : deux essais simultanés comptent bien pour deux.

@@ -1,7 +1,7 @@
 // Compte de l'utilisatrice côté appli : appels à /api/compte (worker/comptes.ts) et état partagé.
 // La session est un cookie HttpOnly posé par le serveur : l'appli ne voit jamais le jeton.
 import { useEffect, useSyncExternalStore } from "react";
-import { appareil } from "./envoi";
+import { appareil } from "./appareil";
 
 export type Compte = { email: string; perles: number };
 export type ReponseApi<T> = { ok: true; data: T } | { ok: false; status: number; error: string; [k: string]: unknown };
@@ -27,6 +27,12 @@ export async function api<T>(chemin: string, corps?: unknown): Promise<ReponseAp
 type Etat = { charge: boolean; compte: Compte | null };
 let etat: Etat = { charge: false, compte: null };
 const abonnes = new Set<() => void>();
+/** Lecture hors React (envoi des photos, src/lib/envoi.ts). */
+export const etatCompte = () => etat;
+export function surChangementCompte(f: () => void): () => void {
+  abonnes.add(f);
+  return () => abonnes.delete(f);
+}
 function publier(e: Partial<Etat>) {
   etat = { ...etat, ...e };
   abonnes.forEach((f) => f());
@@ -56,6 +62,11 @@ export function connecte(compte: Compte) {
   publier({ charge: true, compte });
 }
 
+/** Enregistre sur le serveur l'accord pour le selfie (daté : preuve du consentement). */
+export async function enregistrerConsentement() {
+  return api("/consentement", {});
+}
+
 export async function deconnecter() {
   await api("/deconnexion", {});
   publier({ charge: true, compte: null });
@@ -80,6 +91,8 @@ export function messageErreur(error: string): string {
       return "Ce lien n'est plus valable (il dure 30 minutes et ne sert qu'une fois). Demande-en un nouveau.";
     case "compte_inconnu":
       return "Aucun compte Daloura avec cet email.";
+    case "configuration_incomplete":
+      return "Les comptes ne sont pas encore ouverts. Réessaie un peu plus tard.";
     default:
       return "Un souci est survenu. Réessaie.";
   }

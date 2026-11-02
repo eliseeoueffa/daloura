@@ -67,9 +67,10 @@ export default function Confidentialite() {
           Il ne sert pas à entraîner des modèles d'intelligence artificielle.
         </li>
         <li>
-          Il ne quitte ton téléphone qu'après ton accord explicite (case «
-          J'accepte que mon selfie serve à créer mes aperçus »), que tu peux
-          retirer à tout moment en supprimant tes photos depuis ton profil.
+          Il ne quitte ton téléphone qu'une fois ton compte créé et après ton
+          accord explicite (case « J'accepte que mon selfie serve à créer mes
+          aperçus »), dont nous gardons la date. Tu peux le retirer à tout
+          moment en supprimant tes photos depuis ton profil.
         </li>
         <li>
           Personne ne voit tes aperçus sans toi : ton cercle les voit seulement
@@ -120,18 +121,25 @@ export default function Confidentialite() {
       <ul>
         <li>
           Compte, carnet, perles : tant que ton compte existe. Sans connexion
-          pendant 2 ans, il est supprimé.
+          pendant 2 ans, il est supprimé automatiquement, avec tes photos.
         </li>
         <li>
           Selfie, photos d'inspiration, aperçus : jusqu'à ce que tu les
           supprimes, et au plus tard avec ton compte.
         </li>
+        <li>
+          Photos envoyées depuis un téléphone sans être rattachées à un compte :
+          30 jours.
+        </li>
         <li>Votes du cercle : 12 mois après la fermeture du vote.</li>
         <li>Lien pour changer de code : 30 minutes.</li>
-        <li>Données de connexion (sécurité) : 12 mois.</li>
+        <li>
+          Sessions de connexion (avec l'adresse IP et le navigateur) : 90 jours.
+        </li>
         <li>
           Justificatifs de paiement : 10 ans, comme l'exige le droit comptable
-          (OHADA).
+          (OHADA). Si ton compte est supprimé, ils sont gardés sans lien avec
+          toi (montant, date, référence du paiement).
         </li>
       </ul>
 

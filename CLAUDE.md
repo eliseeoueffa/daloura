@@ -110,10 +110,33 @@ My Hair Recap, payé en perles sans Itaja : 3 mois = 20, 6 mois = 40, 12 mois = 
   la webcam dans la page (`getUserMedia`), avec un message clair si l'accès est refusé.
 - `<ChoixFichier>` (`src/components/ChoixFichier.tsx`) ouvre la galerie ou l'appareil photo.
 - **Envoi vers R2** (`src/lib/envoi.ts` → `worker/photos.ts`, binding `MEDIA`, bucket privé `daloura-media`) :
-  seulement après l'accord sur l'écran Consentement. Le téléphone fait foi : à chaque changement, au démarrage
+  seulement quand elle est **connectée** et a donné son accord (écran Consentement, enregistré aussi sur le
+  serveur : `users.selfie_consent_at`). Le téléphone fait foi : à chaque changement, au démarrage, à la connexion
   et au retour du réseau, on envoie ce qui manque et on efface ce qui a été retiré (réessais espacés si échec).
-  En attendant les comptes, un identifiant aléatoire d'appareil (128 bits, `localStorage`) sert de clé :
-  photos rangées sous `appareils/<sha256(id)>/selfie.jpg` et `…/inspirations/<coiffure>.jpg`. Le Worker vérifie
-  les octets (JPEG, PNG, WebP), la taille (5 Mo max) et la coiffure (table `styles`). Tests : `worker/test/photos.test.ts`.
+  Photos rangées sous `comptes/<userId>/selfie.jpg`, `…/inspirations/<coiffure>.jpg`, `…/essais/<essai>/…`
+  (copie figée au lancement) et `…/apercus/<aperçu>.jpg`. L'ancien dossier par téléphone (`appareils/…`) est vidé
+  à la connexion et purgé après 30 jours. Le Worker vérifie les octets (JPEG, PNG, WebP), la taille (5 Mo max)
+  et la coiffure (table `styles`). Tests : `worker/test/photos.test.ts`.
+
+## Essais et aperçus
+
+- `worker/essais.ts` : `POST /api/essais { coiffures }` (connectée, consentement, photos déjà envoyées) débite les
+  perles (`lancerEssai`), fige une copie des photos, puis génère les aperçus en arrière-plan (`ctx.waitUntil`) ;
+  `GET /api/essais/<id>` (statut, aperçus) et `GET /api/essais/<id>/apercus/<aperçu>` (l'image). Tests :
+  `worker/test/essais.test.ts`.
+- `worker/generation.ts` : générateur **interchangeable**. Aujourd'hui `provisoire` (sans IA : l'aperçu est la photo
+  d'inspiration, l'appli affiche « Aperçu provisoire »). Brancher l'IA = ajouter un générateur et le choisir dans
+  `choisirGenerateur()` ; pour des générations longues, passer par Cloudflare Queues. Échec d'un aperçu =
+  `failed` + perles rendues (`rembourserGeneration`).
+- Appli : l'écran Attente envoie les photos (`synchroniserMaintenant`), lance l'essai (`src/lib/essaiServeur.ts`,
+  identifiant gardé dans `localStorage`), suit l'avancement puis ouvre Aperçu offert / Aperçus / Échec-création.
+  Aperçus, Aperçu offert et Aperçu en grand montrent les vrais aperçus (`useApercusReels`).
+
+## Suppressions automatiques
+
+- `worker/purge.ts`, chaque nuit (cron dans `wrangler.jsonc`) : sessions et liens expirés, votes 12 mois après la
+  fermeture, comptes sans connexion depuis 2 ans (`users.derniere_connexion`, avec leurs photos ; paiements
+  archivés sans lien dans `paiements_archives`), photos `appareils/…` de plus de 30 jours. **Garder ces durées
+  alignées avec la politique de confidentialité.**
 - La caméra exige HTTPS (ou `localhost`) : en local sur téléphone via l'IP de l'ordinateur, elle ne s'ouvre pas,
   utiliser le lien Cloudflare.

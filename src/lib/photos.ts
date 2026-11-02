@@ -5,6 +5,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { IMG } from "../assets/images";
 import { COIFFURES } from "./coiffures";
+import { oublierEssai } from "./essaiServeur";
 
 /** Photo d'inspiration, rangée dans la case d'une coiffure (slug de src/lib/coiffures.ts). */
 export type Inspiration = {
@@ -247,6 +248,7 @@ export function useEssai() {
     essai,
     charge,
     async choisir(styles: string[]) {
+      oublierEssai(); // nouveau choix : nouvel essai à lancer
       await ecrire(CLE_ESSAI, styles);
       publier({ essai: styles });
     },

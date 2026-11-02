@@ -1,17 +1,36 @@
-// Photos dans R2 (binding MEDIA, bucket privé « daloura-media »).
+import { compteConnecte, type EnvComptes } from "./comptes";
+
+// Photos dans R2 (binding MEDIA, bucket privé « daloura-media »). Rien n'est public.
 //
-// En attendant les comptes (étape 2), chaque téléphone est identifié par un identifiant aléatoire
-// de 128 bits qu'il génère et garde (en-tête X-Daloura-Appareil). Il sert de clé secrète : on ne le
-// stocke jamais, on range les photos sous son empreinte SHA-256 :
-//   appareils/<empreinte>/selfie.jpg
-//   appareils/<empreinte>/inspirations/<coiffure>.jpg
-// Le front n'envoie qu'après le consentement (écran Consentement). Rien n'est public : les photos ne
-// se lisent qu'avec l'identifiant de l'appareil (et, plus tard, par la génération des aperçus).
+// Connectée : dossier du compte, comptes/<userId>/ (selfie.jpg, inspirations/<coiffure>.jpg, et aussi
+// essais/… et apercus/… écrits par worker/essais.ts). Le front n'envoie qu'une fois connectée ET après
+// l'accord sur l'écran Consentement.
+// Sans compte (ancien fonctionnement, gardé par sécurité) : dossier du téléphone, appareils/<sha256(id)>/,
+// identifié par l'en-tête X-Daloura-Appareil (identifiant aléatoire de 128 bits, jamais stocké en clair).
+// Ce dossier est vidé dès qu'elle est connectée, et purgé après 30 jours (worker/purge.ts).
 
 export const TAILLE_MAX = 5 * 1024 * 1024; // le front envoie des JPEG de ~0,2 à 1 Mo
 const TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 
-type Env = { MEDIA: R2Bucket; DB: D1Database };
+type Env = EnvComptes & { MEDIA: R2Bucket };
+
+/** Dossier R2 des photos d'un compte (selfie, inspirations, aperçus). */
+export const dossierCompte = (userId: string) => `comptes/${userId}/`;
+/** Dossier R2 des photos envoyées par un téléphone avant la création du compte. */
+export const dossierAppareil = async (appareil: string) => `appareils/${await empreinte(appareil)}/`;
+
+async function viderDossier(media: R2Bucket, prefixe: string): Promise<number> {
+  let n = 0;
+  let curseur: string | undefined;
+  do {
+    const l = await media.list({ prefix: prefixe, cursor: curseur });
+    if (l.objects.length) await media.delete(l.objects.map((o) => o.key));
+    n += l.objects.length;
+    curseur = l.truncated ? l.cursor : undefined;
+  } while (curseur);
+  return n;
+}
+export { viderDossier };
 
 const json = (data: unknown, status = 200) =>
   Response.json(data, { status, headers: { "cache-control": "no-store" } });
@@ -90,9 +109,17 @@ export async function routePhotos(
   env: Env,
   chemin: string,
 ): Promise<Response> {
+  // Connectée : ses photos vont dans le dossier de son compte. Sinon (avant la création du compte),
+  // dans celui de son téléphone. Le téléphone faisant foi, le dossier du téléphone est vidé dès qu'elle
+  // est connectée : la synchronisation suivante renvoie tout dans le dossier du compte.
   const appareil = request.headers.get("x-daloura-appareil") ?? "";
-  if (!/^[a-f0-9]{32}$/.test(appareil)) return erreur("appareil_invalide", 401);
-  const dossier = `appareils/${await empreinte(appareil)}/`;
+  const appareilOk = /^[a-f0-9]{32}$/.test(appareil);
+  const compte = await compteConnecte(request, env);
+  if (!compte && !appareilOk) return erreur("appareil_invalide", 401);
+  const dossier = compte ? dossierCompte(compte.id) : await dossierAppareil(appareil);
+  if (compte && appareilOk && request.method === "GET" && chemin === "") {
+    await viderDossier(env.MEDIA, await dossierAppareil(appareil));
+  }
   const m = request.method;
 
   if (chemin === "") {
@@ -113,10 +140,10 @@ export async function routePhotos(
       return json({ selfie, inspirations });
     }
     if (m === "DELETE") {
-      const liste = await env.MEDIA.list({ prefix: dossier });
-      if (liste.objects.length)
-        await env.MEDIA.delete(liste.objects.map((o) => o.key));
-      return json({ ok: true, supprimees: liste.objects.length });
+      // Tout : selfie, inspirations et aperçus (et ce qui resterait dans le dossier du téléphone).
+      let n = await viderDossier(env.MEDIA, dossier);
+      if (compte && appareilOk) n += await viderDossier(env.MEDIA, await dossierAppareil(appareil));
+      return json({ ok: true, supprimees: n });
     }
     return erreur("methode", 405);
   }

@@ -5,30 +5,11 @@
 // envoie ce qui manque et on efface ce qui a été retiré. Si le réseau coupe, on réessaie plus tard :
 // rien n'est perdu, les photos restent sur le téléphone.
 //
-// Rien ne part tant qu'elle n'a pas donné son accord sur l'écran Consentement.
+// Rien ne part tant qu'elle n'est pas connectée ET n'a pas donné son accord sur l'écran Consentement :
+// les photos vont alors dans le dossier de son compte.
+import { appareil } from "./appareil";
+import { etatCompte, surChangementCompte } from "./compte";
 import { chargerPhotos, etatPhotos, surChangement } from "./photos";
-
-const CLE_APPAREIL = "daloura-appareil";
-let appareilMemoire: string | null = null;
-
-/** Identifiant aléatoire de ce téléphone (128 bits), en attendant les comptes. */
-export function appareil(): string {
-  try {
-    const deja = localStorage.getItem(CLE_APPAREIL);
-    if (deja && /^[a-f0-9]{32}$/.test(deja)) return deja;
-  } catch {
-    // stockage indisponible : identifiant le temps de la visite
-  }
-  appareilMemoire ??= [...crypto.getRandomValues(new Uint8Array(16))]
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-  try {
-    localStorage.setItem(CLE_APPAREIL, appareilMemoire);
-  } catch {
-    /* rien */
-  }
-  return appareilMemoire;
-}
 
 const entetes = () => ({ "x-daloura-appareil": appareil() });
 
@@ -70,7 +51,7 @@ type Serveur = {
 async function synchroniser(): Promise<void> {
   await chargerPhotos();
   const { selfie, inspirations, consentement } = etatPhotos();
-  if (!consentement) return;
+  if (!consentement || !etatCompte().compte) return;
   const r = await fetch("/api/photos", { headers: entetes() });
   if (!r.ok) throw new Error(`liste : ${r.status}`);
   const serveur = (await r.json()) as Serveur;
@@ -125,6 +106,16 @@ function lancer() {
     });
 }
 
+/** Synchronise tout de suite et attend la fin (avant de lancer un essai). Lève une erreur si échec. */
+export async function synchroniserMaintenant(): Promise<void> {
+  clearTimeout(minuterie);
+  while (enCours) await enCours;
+  enCours = synchroniser().finally(() => {
+    enCours = null;
+  });
+  await enCours;
+}
+
 /** Efface toutes ses photos du serveur (Profil), même sans consentement enregistré. */
 export async function effacerDuServeur(): Promise<void> {
   try {
@@ -145,6 +136,13 @@ export function demarrerEnvoi() {
       e.consentement !== precedent.consentement;
     precedent = e;
     if (change && e.charge) planifier();
+  });
+  // Connexion (ou changement de compte) : on envoie ses photos dans le dossier du compte.
+  let compteAvant = etatCompte().compte?.email;
+  surChangementCompte(() => {
+    const c = etatCompte().compte?.email;
+    if (c && c !== compteAvant) planifier(0);
+    compteAvant = c;
   });
   addEventListener("online", () => planifier(0));
   planifier(3000);

@@ -4,7 +4,12 @@
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
 import { Perles } from "../components/Perle";
-import { enLettres, useLooks } from "../lib/essai";
+import {
+  STYLE_PHOTO,
+  enLettres,
+  useApercusReels,
+  useLooks,
+} from "../lib/essai";
 import { voteAutorise } from "../lib/perles";
 import { useSolde } from "../lib/solde";
 
@@ -26,6 +31,7 @@ const FONDS = ["bg-rose", "bg-sun", "bg-cream"];
 
 export default function Apercus() {
   const looks = useLooks();
+  const { essai: essaiReel, de: apercuReel } = useApercusReels();
   return (
     <div className="scr">
       <div className="top">
@@ -62,13 +68,31 @@ export default function Apercus() {
             >
               <span className="tape"></span>
               <div className={`ph ${FONDS[k % 3]}`}>
-                <img src={l.img} alt={`Aperçu ${l.nom.toLowerCase()}`} />
+                <img
+                  src={apercuReel(l.slug)?.url ?? l.img}
+                  alt={`Aperçu ${l.nom.toLowerCase()}`}
+                  style={apercuReel(l.slug)?.url ? STYLE_PHOTO : undefined}
+                />
               </div>
-              <div className="cap">{l.nom.toLowerCase()}</div>
+              <div className="cap">
+                {apercuReel(l.slug)?.statut === "failed"
+                  ? "raté · perles rendues"
+                  : l.nom.toLowerCase()}
+              </div>
             </Link>
           );
         })}
       </div>
+      {essaiReel?.provisoire && (
+        <div className="alert">
+          <span className="ic">i</span>
+          <div>
+            <b>Aperçu provisoire.</b>La création par intelligence artificielle
+            arrive bientôt : pour l'instant, l'aperçu montre ta photo
+            d'inspiration.
+          </div>
+        </div>
+      )}
       <div className="alert">
         <span className="ic">i</span>
         <div>

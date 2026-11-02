@@ -3,6 +3,7 @@
 // (selfie, inspirations) peuvent partir vers le serveur (src/lib/envoi.ts).
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { enregistrerConsentement } from "../lib/compte";
 import { useConsentement, useSelfieAffiche } from "../lib/photos";
 
 export default function Consentement() {
@@ -99,6 +100,8 @@ export default function Consentement() {
         disabled={!coche}
         onClick={async () => {
           if (consentement === null) await donner();
+          // Connectée : l'accord est aussi enregistré (daté) sur le serveur.
+          await enregistrerConsentement();
           navigate("/notifications");
         }}
       >

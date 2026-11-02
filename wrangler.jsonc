@@ -22,5 +22,7 @@
     }
   ],
   // Photos (selfies, inspirations) : bucket R2 privé, à créer une fois dans le tableau de bord Cloudflare.
+  // Suppressions automatiques (worker/purge.ts), chaque nuit à 3 h 17 UTC.
+  "triggers": { "crons": ["17 3 * * *"] },
   "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "daloura-media" }]
 }

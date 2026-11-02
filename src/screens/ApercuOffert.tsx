@@ -4,10 +4,11 @@
 import { Link } from "react-router";
 import { IMG } from "../assets/images";
 import { PhotoInspiration } from "../components/PhotoInspiration";
-import { useLooks } from "../lib/essai";
+import { STYLE_PHOTO, useApercusReels, useLooks } from "../lib/essai";
 
 export default function ApercuOffert() {
   const look = useLooks()[0];
+  const { essai: essaiReel, de: apercuReel } = useApercusReels();
   return (
     <div className="scr">
       <div className="top">
@@ -25,8 +26,9 @@ export default function ApercuOffert() {
           <span className="tape"></span>
           <div className="ph bg-cream">
             <img
-              src={look.img}
+              src={apercuReel(look.slug)?.url ?? look.img}
               alt={`Aperçu : toi en ${look.nom.toLowerCase()}`}
+              style={apercuReel(look.slug)?.url ? STYLE_PHOTO : undefined}
             />
           </div>
           <div className="cap" style={{ fontSize: "18px" }}>
@@ -59,6 +61,16 @@ export default function ApercuOffert() {
           <PhotoInspiration slug={look.slug} alt="Ton inspiration" />
         </div>
       </div>
+      {essaiReel?.provisoire && (
+        <div className="alert">
+          <span className="ic">i</span>
+          <div>
+            <b>Aperçu provisoire.</b>La création par intelligence artificielle
+            arrive bientôt : pour l'instant, l'aperçu montre ta photo
+            d'inspiration.
+          </div>
+        </div>
+      )}
       <div className="alert">
         <span className="ic">i</span>
         <div>
