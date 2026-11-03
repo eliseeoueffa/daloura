@@ -110,6 +110,8 @@ My Hair Recap, payé en perles sans Itaja : 3 mois = 20, 6 mois = 40, 12 mois = 
 - Liseré crème façon autocollant (`.stk img` dans `app.css`) : sur les stickers seulement. Ses vraies photos dans une
   case `.stk` portent la classe `vraie-photo` pour en être exclues ; les polaroids n'en ont pas.
 - Après un changement de stickers : relancer `scripts/generer_visuels.cjs` (image de partage, captures d'installation).
+- Les maquettes (`design/maquettes/*.dc.html`) pointent vers ces mêmes fichiers (`../../src/assets/…`) : elles
+  montrent toujours les dessins de l'appli. Ne pas y remettre d'images `/_blob/…` de l'outil de design.
 
 ## Photos
 
