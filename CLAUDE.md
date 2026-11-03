@@ -97,6 +97,22 @@ My Hair Recap, payé en perles sans Itaja : 3 mois = 20, 6 mois = 40, 12 mois = 
 - Les écrans publics (Accueil, page de vote, Vote-ferme, Vote-merci) gardent « ton premier essai est offert ».
 - Code secret : on parle de « tentatives », pas d'« essais », pour ne pas confondre.
 
+## Stickers (visuels de coiffure)
+
+- `src/assets/portrait-*.svg` (fulani, knots, knotless, locs, perruque, afro, selfie) sont la **collection validée**,
+  provisoire jusqu'aux stickers peints à la main et aux photos de la séance. Cadre commun : viewBox `0 0 100 110`
+  (les mises en page en dépendent). `src/assets/images.ts` les référence ; `src/lib/coiffures.ts` les associe aux coiffures.
+- Générateur : `python3 scripts/stickers_gen.py` écrit les SVG dans `scripts/out/` (ignoré par git), à copier dans
+  `src/assets/` après validation. Il reproduit exactement les fichiers actuels.
+- Règles pour en ajouter : même trait (aplats, contour #2B1D19, reflets crème, ombre en aplat sur un côté du visage),
+  la coiffure fait au moins la moitié du dessin, carnations variées, sourires, bijoux dorés, rien de sexualisé
+  (public dès 14 ans).
+- Liseré crème façon autocollant (`.stk img` dans `app.css`) : sur les stickers seulement. Ses vraies photos dans une
+  case `.stk` portent la classe `vraie-photo` pour en être exclues ; les polaroids n'en ont pas.
+- Après un changement de stickers : relancer `scripts/generer_visuels.cjs` (image de partage, captures d'installation).
+- Les maquettes (`design/maquettes/*.dc.html`) pointent vers ces mêmes fichiers (`../../src/assets/…`) : elles
+  montrent toujours les dessins de l'appli. Ne pas y remettre d'images `/_blob/…` de l'outil de design.
+
 ## Photos
 
 - Selfie, inspirations et coiffures choisies pour l'essai sont gardés **dans le navigateur** (IndexedDB,

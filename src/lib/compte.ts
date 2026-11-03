@@ -40,7 +40,10 @@ function publier(e: Partial<Etat>) {
 
 let chargement: Promise<void> | null = null;
 export function rafraichirCompte() {
-  chargement = api<Compte>("/moi").then((r) => publier({ charge: true, compte: r.ok ? r.data : null }));
+  // N'accepte qu'une vraie réponse de compte (sinon, par exemple sans serveur, on n'est pas connectée).
+  chargement = api<Compte>("/moi").then((r) =>
+    publier({ charge: true, compte: r.ok && estUnCompte(r.data) ? r.data : null }),
+  );
   return chargement;
 }
 
@@ -57,6 +60,9 @@ export function useCompte() {
   }, []);
   return e;
 }
+
+const estUnCompte = (d: unknown): d is Compte =>
+  !!d && typeof (d as Compte).email === "string" && typeof (d as Compte).perles === "number";
 
 export function connecte(compte: Compte) {
   publier({ charge: true, compte });

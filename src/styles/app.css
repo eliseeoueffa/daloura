@@ -569,6 +569,11 @@ a,
   width: 90%;
   display: block;
 }
+/* Liseré crème façon autocollant, sur les stickers seulement : pas sur ses vraies photos
+   (class "vraie-photo"), ni sur les polaroids qui représentent des photos. */
+.stk img:not(.vraie-photo) {
+  filter: drop-shadow(1.2px 0 0 #fffdf8) drop-shadow(-1.2px 0 0 #fffdf8) drop-shadow(0 -1.2px 0 #fffdf8);
+}
 .stk.round {
   border-radius: 50%;
 }

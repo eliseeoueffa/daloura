@@ -102,9 +102,29 @@ def comp_of(stem: str) -> str:
     return "Accueil" if name == "Main" else name
 
 
+# Les maquettes pointent vers les fichiers du dépôt (mêmes dessins que l'appli) :
+# ../../src/assets/<fichier>. Les anciens liens /_blob/<code> de l'outil de design restent compris.
+ASSETS = {
+    "portrait-fulani.svg": "fulani",
+    "portrait-knots.svg": "knots",
+    "portrait-knotless.svg": "knotless",
+    "portrait-selfie.svg": "selfie",
+    "portrait-perruque.svg": "perruque",
+    "portrait-afro.svg": "afro",
+    "portrait-locs.svg": "locs",
+    "d-miroir.svg": "logo",
+    "d-miroir-inv.svg": "logoInv",
+    "raies.svg": "raies",
+}
+LIEN_IMAGE = r"(?:/_blob/[0-9a-f]{32}|(?:\.\./)+src/assets/[\w.-]+\.svg)"
+
+
 def blob_ref(value: str) -> str | None:
     m = re.search(r"/_blob/([0-9a-f]{32})", value)
-    return BLOBS.get(m.group(1)) if m else None
+    if m:
+        return BLOBS.get(m.group(1))
+    m = re.search(r"src/assets/([\w.-]+\.svg)", value)
+    return ASSETS.get(m.group(1)) if m else None
 
 
 def js_str(s: str) -> str:
@@ -126,7 +146,7 @@ def style_obj(css: str) -> str:
             key = re.sub(r"-([a-z])", lambda m: m.group(1).upper(), k)
         ref = blob_ref(v)
         if ref:
-            val = "`" + re.sub(r"/_blob/[0-9a-f]{32}", "${IMG." + ref + "}", v).replace('"', "") + "`"
+            val = "`" + re.sub(LIEN_IMAGE, "${IMG." + ref + "}", v).replace('"', "") + "`"
         else:
             val = js_str(v)
         parts.append(f"{key}: {val}")

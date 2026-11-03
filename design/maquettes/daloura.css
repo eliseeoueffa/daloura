@@ -78,6 +78,8 @@
 .rays{background:repeating-conic-gradient(from 0deg at 50% 46%,#E8A93A 0 15deg,#F2C978 15deg 30deg)}
 .stk{border-radius:16px;box-shadow:0 0 0 4px #FFFDF8,0 6px 12px -6px rgba(73,51,47,.45);overflow:hidden;display:flex;align-items:flex-end;justify-content:center;position:relative;flex-shrink:0}
 .stk img{width:90%;display:block}
+/* Liseré crème façon autocollant : stickers seulement (pas les vraies photos, pas les polaroids) */
+.stk img:not(.vraie-photo){filter:drop-shadow(1.2px 0 0 #FFFDF8) drop-shadow(-1.2px 0 0 #FFFDF8) drop-shadow(0 -1.2px 0 #FFFDF8)}
 .stk.round{border-radius:50%}
 /* Nom de coiffure : 2 lignes maximum (24 caractères conseillés) */
 .stk-name{font-family:"Corben",Georgia,serif;font-weight:700;font-size:.8125rem;color:#702D43;text-align:center;font-variant-ligatures:none;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
