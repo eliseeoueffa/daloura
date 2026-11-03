@@ -8,6 +8,7 @@ export function PhotoInspiration({ slug, alt }: { slug: string; alt: string }) {
   if (url)
     return (
       <img
+        className="vraie-photo"
         src={url}
         alt={alt}
         style={{ width: "100%", height: "100%", objectFit: "cover" }}

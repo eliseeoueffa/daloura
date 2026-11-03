@@ -81,6 +81,7 @@ function Case({
         {photo ? (
           url && (
             <img
+              className="vraie-photo"
               src={url}
               alt=""
               style={{ width: "100%", height: "100%", objectFit: "cover" }}

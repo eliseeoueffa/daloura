@@ -39,8 +39,8 @@ Les écrans de `src/screens/` sont générés depuis les maquettes validées (`d
 par `npm run screens:import`. Ils sont statiques (fausses données) : chaque étape les rend dynamiques.
 Dès qu'un écran est modifié à la main, ajoute-le à `MANUELS` dans `scripts/import_maquettes.py` pour ne pas l'écraser.
 
-Les visages et stickers sont des illustrations provisoires (`src/assets/`), à remplacer par les photos
-de la séance et les stickers peints.
+Les stickers de `src/assets/` sont la collection validée (générée par `scripts/stickers_gen.py`), provisoire
+jusqu'aux stickers peints à la main et aux photos de la séance.
 
 ## Déployer sur Cloudflare (une seule fois)
 
