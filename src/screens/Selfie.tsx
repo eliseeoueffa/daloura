@@ -1,16 +1,23 @@
 // Écran fait à la main (retiré de scripts/import_maquettes.py) : maquette design/maquettes/Selfie.dc.html.
-// Caméra : sur téléphone, l'appareil photo du système (input capture) ; sur ordinateur, la webcam
-// dans la page (getUserMedia). La galerie ouvre la photothèque ou l'explorateur de fichiers.
+// Caméra : partout (téléphone et ordinateur), la caméra AVANT dans la page (getUserMedia, facingMode
+// « user ») : l'attribut capture="user" n'est qu'un souhait que beaucoup d'applis photo Android ignorent
+// (elles ouvraient la caméra arrière). Si la caméra dans la page ne s'ouvre pas, on propose l'appareil
+// photo du téléphone en secours. La galerie ouvre la photothèque ou l'explorateur de fichiers.
 // Le selfie est gardé dans le navigateur (src/lib/photos.ts) jusqu'à l'envoi vers R2 (étape 3).
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { IMG } from "../assets/images";
 import { ChoixFichier } from "../components/ChoixFichier";
-import { preparer, useSelfie, useUrl } from "../lib/photos";
+import {
+  MESSAGE_PHOTO_ILLISIBLE,
+  preparer,
+  useSelfie,
+  useUrl,
+} from "../lib/photos";
 
 type Mode = "guide" | "camera" | "apercu";
 
-/** Téléphone ou tablette : l'appareil photo du système est plus fiable que la caméra dans la page. */
+/** Téléphone ou tablette (pour proposer l'appareil photo du téléphone en secours). */
 const ecranTactile = () =>
   typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
 
@@ -26,6 +33,7 @@ function messageErreur(e: unknown): string {
 }
 
 export default function Selfie() {
+  const [secours, setSecours] = useState(false);
   const navigate = useNavigate();
   const { selfie, charge, enregistrer } = useSelfie();
   const [photo, setPhoto] = useState<Blob | null>(null);
@@ -68,18 +76,30 @@ export default function Selfie() {
       );
       return;
     }
+    const taille = { width: { ideal: 1600 }, height: { ideal: 1600 } };
     try {
-      flux.current = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: "user",
-          width: { ideal: 1280 },
-          height: { ideal: 1280 },
-        },
-        audio: false,
-      });
+      try {
+        // Téléphone : on EXIGE la caméra avant.
+        flux.current = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: ecranTactile() ? { exact: "user" } : "user",
+            ...taille,
+          },
+          audio: false,
+        });
+      } catch (e) {
+        // Appareil sans caméra « avant » déclarée (ordinateur, certaines tablettes) : n'importe laquelle.
+        if (!(e instanceof DOMException && e.name === "OverconstrainedError"))
+          throw e;
+        flux.current = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", ...taille },
+          audio: false,
+        });
+      }
       setMode("camera");
     } catch (e) {
       setErreur(messageErreur(e));
+      setSecours(ecranTactile());
     }
   }
 
@@ -104,7 +124,7 @@ export default function Selfie() {
       setPhoto(await preparer(f[0]));
       setMode("apercu");
     } catch {
-      setErreur("Cette photo n'a pas pu être lue. Essaie avec une autre.");
+      setErreur(MESSAGE_PHOTO_ILLISIBLE);
     }
   }
 
@@ -219,20 +239,16 @@ export default function Selfie() {
         </p>
       )}
       <div className="grow"></div>
-      {mode === "guide" &&
-        (ecranTactile() ? (
-          <ChoixFichier
-            className="btn"
-            camera="user"
-            onFichiers={depuisFichier}
-          >
-            Prendre la photo
-          </ChoixFichier>
-        ) : (
-          <button type="button" className="btn" onClick={ouvrirCamera}>
-            Prendre la photo
-          </button>
-        ))}
+      {mode === "guide" && (
+        <button type="button" className="btn" onClick={ouvrirCamera}>
+          Prendre la photo
+        </button>
+      )}
+      {mode === "guide" && secours && (
+        <ChoixFichier className="btn2" camera="user" onFichiers={depuisFichier}>
+          Utiliser l'appareil photo du téléphone
+        </ChoixFichier>
+      )}
       {mode === "camera" && (
         <button type="button" className="btn" onClick={declencher}>
           Déclencher

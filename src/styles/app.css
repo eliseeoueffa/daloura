@@ -741,21 +741,6 @@ button:disabled {
 .viewfinder video {
   transform: scaleX(-1);
 }
-/* Case de coiffure sans photo : invitation à ajouter sa photo d'inspiration */
-.ajout-photo {
-  position: absolute;
-  left: 50%;
-  bottom: 8px;
-  transform: translateX(-50%);
-  background: #702d43;
-  color: #f5efe6;
-  border-radius: 999px;
-  padding: 3px 9px;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  white-space: nowrap;
-  z-index: 2;
-}
 /* Pavé du code secret : vraies touches */
 .pad button {
   min-height: 52px;

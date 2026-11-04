@@ -10,6 +10,9 @@
     "run_worker_first": ["/api/*"]
   },
   "observability": { "enabled": true },
+  // Ne pas effacer, au déploiement, les variables ajoutées dans le tableau de bord Cloudflare.
+  // (Les clés doivent quand même y être en type « Secret ».)
+  "keep_vars": true,
   // Envoi des emails (code oublié) par MakiSend. La clé va dans les secrets : MAKISEND_API_KEY.
   "vars": { "MAKISEND_URL": "https://makisend.elisee.workers.dev" },
   // Base D1 : schéma dans migrations/ (npm run db:migrate:local / db:migrate:remote).

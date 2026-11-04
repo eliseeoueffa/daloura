@@ -31,9 +31,14 @@ export default {
       const media = await env.MEDIA.head("sante")
         .then(() => "ok")
         .catch(() => "indisponible");
-      const ok = db === "ok" && media === "ok";
+      // Présence des secrets (jamais leur valeur) : pour vérifier la configuration Cloudflare.
+      const secrets = {
+        BETTER_AUTH_SECRET: (env.BETTER_AUTH_SECRET ?? "").length >= 32 ? "ok" : "manquant",
+        MAKISEND_API_KEY: env.MAKISEND_API_KEY ? "ok" : "manquant",
+      };
+      const ok = db === "ok" && media === "ok" && Object.values(secrets).every((v) => v === "ok");
       return json(
-        { ok, service: "daloura", version: "0.1.0", db, media },
+        { ok, service: "daloura", version: "0.1.0", db, media, secrets },
         ok ? 200 : 503,
       );
     }

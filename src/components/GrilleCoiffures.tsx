@@ -1,9 +1,15 @@
 // Grille des 6 coiffures, partagée par la bibliothèque d'inspirations et les écrans de choix.
-// Chaque case montre SA photo d'inspiration si elle en a mis une, sinon l'illustration (pâle).
+// Chaque case montre SA photo d'inspiration si elle en a mis une, sinon le sticker (pâle), sans texte :
+// le nom de la coiffure n'est lu que par les lecteurs d'écran (aria-label).
 // Toucher une case sans photo ouvre la galerie : la photo choisie va dans CETTE case.
 import { useRef, useState } from "react";
 import { COIFFURES, type Coiffure } from "../lib/coiffures";
-import { useInspirations, useUrl, type Inspiration } from "../lib/photos";
+import {
+  MESSAGE_PHOTO_ILLISIBLE,
+  useInspirations,
+  useUrl,
+  type Inspiration,
+} from "../lib/photos";
 
 type Props =
   | { mode: "bibliotheque" }
@@ -88,12 +94,7 @@ function Case({
             />
           )
         ) : (
-          <>
-            <img src={c.img} alt="" />
-            <span className="ajout-photo" aria-hidden="true">
-              + ta photo
-            </span>
-          </>
+          <img src={c.img} alt="" />
         )}
       </button>
       {choisie && <span className="badge">{avecCoche ? coche : rang}</span>}
@@ -108,7 +109,6 @@ function Case({
           ×
         </button>
       )}
-      <span className="stk-name">{c.nom}</span>
     </div>
   );
 }
@@ -142,7 +142,7 @@ export function GrilleCoiffures(props: Props) {
       if (props.mode === "choix" && !props.choisis.includes(slug))
         basculer(slug);
     } catch {
-      setErreur("Cette photo n'a pas pu être lue. Essaie avec une autre.");
+      setErreur(MESSAGE_PHOTO_ILLISIBLE);
     }
   }
 

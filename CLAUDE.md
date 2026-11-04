@@ -15,7 +15,9 @@ PWA mobile (React + Vite + TypeScript) servie par un Cloudflare Worker (`worker/
 - Ne jamais modifier une migration déjà appliquée : ajouter `migrations/000N_….sql`.
 - Un écran modifié à la main doit être ajouté à `MANUELS` dans `scripts/import_maquettes.py`, et sa
   maquette (`design/maquettes/*.dc.html`) mise à jour en même temps.
-- Les clés (MakiSend, Itaja…) vont dans les secrets du Worker, jamais dans le code.
+- Les clés (MakiSend, Itaja…) vont dans les secrets du Worker, jamais dans le code. Dans le tableau de bord, toujours
+  en type **Secret** (une variable « Texte » est effacée par `wrangler deploy` ; `keep_vars: true` limite le risque).
+  `/api/health` indique si chaque secret est présent (jamais sa valeur).
 
 ## Comptes
 
@@ -122,8 +124,13 @@ My Hair Recap, payé en perles sans Itaja : 3 mois = 20, 6 mois = 40, 12 mois = 
   commune à la bibliothèque et aux écrans de choix : toucher une case sans photo ouvre la galerie, la photo va dans
   cette case. `useLooks()` (`src/lib/essai.ts`) donne les coiffures choisies aux écrans d'attente et d'aperçus.
 - Tant que l'IA n'est pas branchée, l'« aperçu » affiché est l'illustration de la coiffure.
-- Prendre une photo : sur écran tactile, l'appareil photo du système (`<input capture="user">`) ; sur ordinateur,
-  la webcam dans la page (`getUserMedia`), avec un message clair si l'accès est refusé.
+- Prendre le selfie : partout la caméra AVANT dans la page (`getUserMedia`, `facingMode: { exact: "user" }` sur
+  téléphone) ; `capture="user"` n'est qu'un souhait que beaucoup d'applis photo Android ignorent (elles ouvraient la
+  caméra arrière). En cas d'échec : message clair, et sur téléphone l'appareil photo du système en secours.
+- Photos illisibles (souvent HEIC) : `preparer()` essaie deux méthodes de lecture puis **refuse** la photo avec
+  `MESSAGE_PHOTO_ILLISIBLE` ; ne jamais garder un original non décodé (image cassée, refusée par le serveur).
+  Au chargement, les photos d'un autre type que JPEG/PNG/WebP sont écartées.
+- Grille des coiffures : stickers sans texte (ni nom, ni « + ta photo ») ; le nom est dans l'`aria-label`.
 - `<ChoixFichier>` (`src/components/ChoixFichier.tsx`) ouvre la galerie ou l'appareil photo.
 - **Envoi vers R2** (`src/lib/envoi.ts` → `worker/photos.ts`, binding `MEDIA`, bucket privé `daloura-media`) :
   seulement quand elle est **connectée** et a donné son accord (écran Consentement, enregistré aussi sur le

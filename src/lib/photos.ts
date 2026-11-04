@@ -124,8 +124,8 @@ function charger() {
     lire<number>(CLE_CONSENTEMENT),
   ]).then(([s, i, e, c]) =>
     publier({
-      selfie: s ?? null,
-      inspirations: rangerAnciennes(i ?? []),
+      selfie: lisible(s) ? s : null,
+      inspirations: rangerAnciennes(i ?? []).filter((x) => lisible(x.blob)),
       essai: e ?? [],
       consentement: c ?? null,
       charge: true,
@@ -166,22 +166,14 @@ export function useUrl(blob: Blob | null | undefined): string | null {
 export async function preparer(
   source: Blob | HTMLCanvasElement,
 ): Promise<Blob> {
-  let img: CanvasImageSource & { width: number; height: number };
-  try {
-    img =
-      source instanceof HTMLCanvasElement
-        ? source
-        : await createImageBitmap(source, { imageOrientation: "from-image" });
-  } catch {
-    if (source instanceof Blob && source.type.startsWith("image/"))
-      return source; // format non décodable ici : gardé tel quel
-    throw new Error("image_illisible");
-  }
+  const img =
+    source instanceof HTMLCanvasElement ? source : await decoder(source);
   const r = Math.min(1, COTE_MAX / Math.max(img.width, img.height));
   const canvas = document.createElement("canvas");
-  canvas.width = Math.round(img.width * r);
-  canvas.height = Math.round(img.height * r);
+  canvas.width = Math.max(1, Math.round(img.width * r));
+  canvas.height = Math.max(1, Math.round(img.height * r));
   canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+  if ("close" in img && typeof img.close === "function") img.close();
   return new Promise((resolve, reject) =>
     canvas.toBlob(
       (b) => (b ? resolve(b) : reject(new Error("image_illisible"))),
@@ -190,6 +182,48 @@ export async function preparer(
     ),
   );
 }
+
+/**
+ * Lit une photo. Deux méthodes (certains téléphones refusent la première sur les très grosses photos).
+ * Si aucune ne marche (souvent une photo HEIC, que les navigateurs ne savent pas lire), on REFUSE la
+ * photo : la garder telle quelle donnait une image cassée et un envoi refusé par le serveur.
+ */
+async function decoder(
+  blob: Blob,
+): Promise<
+  { width: number; height: number } & CanvasImageSource & { close?: () => void }
+> {
+  try {
+    return await createImageBitmap(blob, { imageOrientation: "from-image" });
+  } catch {
+    /* on essaie l'autre méthode */
+  }
+  const url = URL.createObjectURL(blob);
+  try {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    if (!img.naturalWidth) throw new Error("vide");
+    return Object.assign(img, {
+      width: img.naturalWidth,
+      height: img.naturalHeight,
+    });
+  } catch {
+    throw new Error("image_illisible");
+  } finally {
+    // L'image décodée reste utilisable après la libération de l'adresse.
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+}
+
+/** Types que l'appli produit (et que le serveur accepte). Une photo d'un autre type est illisible. */
+const TYPES_LISIBLES = ["image/jpeg", "image/png", "image/webp"];
+const lisible = (b: Blob | null | undefined): b is Blob =>
+  !!b && b.size > 0 && TYPES_LISIBLES.includes(b.type);
+
+/** Message pour une photo refusée. */
+export const MESSAGE_PHOTO_ILLISIBLE =
+  "Ton téléphone n'arrive pas à lire cette photo (souvent une photo au format HEIC). Choisis-en une autre, ou fais une capture d'écran de la photo et choisis la capture.";
 
 // ─── API des écrans ─────────────────────────────────────────────────────────
 
